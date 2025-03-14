@@ -1,4 +1,4 @@
-export interface Task {
+export interface Expense {
     id: string;
     name: string;
     completed: boolean;
@@ -14,4 +14,5 @@ export interface Event {
     cliente: string;
     email: string;
     telefono: string;
+    expenses: Expense[]
 }
