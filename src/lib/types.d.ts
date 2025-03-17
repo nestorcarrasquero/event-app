@@ -1,7 +1,16 @@
-export interface Expense {
+export interface Tarea {
     id: string;
-    name: string;
-    completed: boolean;
+    nombre: string;
+    completado: boolean;
+}
+
+export interface Gasto {
+    id: string;
+    descripcion: string;
+    monto: number;
+    categoria: string;
+    fecha: Date;
+    responsable: string;
 }
 
 export interface Event {
@@ -14,5 +23,6 @@ export interface Event {
     cliente: string;
     email: string;
     telefono: string;
-    expenses: Expense[]
+    tareas: Tarea[];
+    gastos: Gasto[];
 }

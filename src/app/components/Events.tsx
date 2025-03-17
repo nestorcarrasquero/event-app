@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Event } from "@/lib/types"
 import { formatDate } from "@/lib/utils"
-import { CalendarDays, MapPin, Users } from "lucide-react"
+import { CalendarDays, DollarSign, MapPin, Users } from "lucide-react"
 import Link from "next/link"
 
 interface Props {
@@ -29,6 +29,12 @@ export default function Events({ events }: Props) {
                             <div className="flex items-start gap-2">
                                 <Users className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
                                 <span>{event.organizador}</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                                <DollarSign className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+                                <span>
+                                    ${event.gastos.reduce((sum, gasto) => sum + gasto.monto, 0).toFixed(2)} total en gastos
+                                </span>
                             </div>
                         </CardContent>
                     </Card>
