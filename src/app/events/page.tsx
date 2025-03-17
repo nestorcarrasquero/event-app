@@ -1,6 +1,6 @@
 'use client'
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { ChevronLeft, Plus } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Events from "../components/Events";
@@ -58,6 +58,9 @@ export default function EventsPage() {
 
     return (
         <div className="container mx-auto px-4 py-8">
+            <Link href="/" className="inline-flex items-center gap-1 mb-6 text-muted-foreground">
+                <ChevronLeft className="h-4 w-4" />Regresa a Página Principal
+            </Link>
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold">Eventos</h1>
                 <Link href="/events/new">

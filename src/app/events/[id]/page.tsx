@@ -2,10 +2,13 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Event } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
-import { CalendarDays, ChevronLeft, DollarSign, MapPin, Trash2, Users } from "lucide-react";
+import { CalendarDays, ChevronLeft, DollarSign, MapPin, Plus, Trash2, Users } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -27,8 +30,8 @@ const initialEvents: Event[] = [
             { id: "t3", nombre: "Plan activities", completado: false },
         ],
         gastos: [
-            { id: "e1", categoria: "Alquiler", descripcion: "Alquiler de salón", fecha: new Date("2021-10-10"), monto: 2000, responsable: "Pedro Perez" },
-            { id: "e2", categoria: "Reserva", descripcion: "Reserva de hotel", fecha: new Date("2021-10-10"), monto: 2524, responsable: "Maria Lopez" },
+            { id: "e1", categoria: "Alquiler", descripcion: "Alquiler de salón", fecha: new Date(), monto: 2000, responsable: "Pedro Perez" },
+            { id: "e2", categoria: "Reserva", descripcion: "Reserva de hotel", fecha: new Date(), monto: 2524, responsable: "Maria Lopez" },
         ],
     },
     {
@@ -47,17 +50,35 @@ const initialEvents: Event[] = [
             { id: "t3", nombre: "Set up demo stations", completado: false },
         ],
         gastos: [
-            { id: "e1", categoria: "Marketing", descripcion: "Marketing de materiales", fecha: new Date("2021-10-10"), monto: 560, responsable: "Luis Rodriguez" },
-            { id: "e2", categoria: "Publicidad", descripcion: "Publicidad de evento", fecha: new Date("2021-10-10"), monto: 3434, responsable: "Adriana Ramirez" },
+            { id: "e1", categoria: "Marketing", descripcion: "Marketing de materiales", fecha: new Date(), monto: 560, responsable: "Luis Rodriguez" },
+            { id: "e2", categoria: "Publicidad", descripcion: "Publicidad de evento", fecha: new Date(), monto: 3434, responsable: "Adriana Ramirez" },
         ],
     },
+]
+
+const categoriaGastos = [
+    "Alquiler",
+    "Reserva",
+    "Marketing",
+    "Publicidad",
+    "Comida",
+    "Transporte",
+    "Entretenimiento",
+    "Otros"
 ]
 
 export default function EventDetail() {
     const params = useParams();
     const router = useRouter()
     const [event, setEvent] = useState<Event | null>(null)
+    const [newTask, setNewTask] = useState("")
     const [activeTab, setActiveTab] = useState("overview")
+    const [newGasto, setNewGasto] = useState({
+        descripcion: "",
+        categoria: "",
+        monto: "",
+        responsable: "",
+    })
 
     useEffect(() => {
         const foundEvent = initialEvents.find((event) => event.id === params.id)
@@ -79,6 +100,16 @@ export default function EventDetail() {
         })
     }
 
+    const addTask = () => {
+        if (newTask.trim() === "") return
+
+        setEvent({
+            ...event,
+            tareas: [...event.tareas, { id: `t${Date.now()}`, nombre: newTask, completado: false }],
+        })
+        setNewTask("")
+    }
+
     const removeExpense = (expenseId: string) => {
         setEvent({
             ...event,
@@ -98,9 +129,9 @@ export default function EventDetail() {
             </div>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
                 <TabsList>
-                    <TabsTrigger value="overview">Overview</TabsTrigger>
-                    <TabsTrigger value="tasks">Tasks</TabsTrigger>
-                    <TabsTrigger value="expenses">Expenses</TabsTrigger>
+                    <TabsTrigger value="overview">Vista Preliminar</TabsTrigger>
+                    <TabsTrigger value="tasks">Tareas</TabsTrigger>
+                    <TabsTrigger value="expenses">Gastos</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="overview" className="space-y-4">
@@ -194,7 +225,7 @@ export default function EventDetail() {
                                             <div key={gasto.id} className="flex justify-between items-center">
                                                 <div>
                                                     <div className="font-medium text-sm">{gasto.descripcion}</div>
-                                                    <div className="text-xs text-muted-foreground">Paid by {gasto.responsable}</div>
+                                                    <div className="text-xs text-muted-foreground">Contratado por {gasto.responsable}</div>
                                                 </div>
                                                 <div className="font-medium">${gasto.monto.toFixed(2)}</div>
                                             </div>
@@ -219,7 +250,51 @@ export default function EventDetail() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-
+                            <div className="space-y-4">
+                                <div className="flex gap-2">
+                                    <Input
+                                        placeholder="Agregue tarea"
+                                        value={newTask}
+                                        onChange={(e) => setNewTask(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter") {
+                                                addTask()
+                                            }
+                                        }}
+                                    />
+                                    <Button onClick={addTask} size="icon">
+                                        <Plus className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                                <div className="space-y-2">
+                                    {
+                                        event.tareas.length === 0 ? (
+                                            <p className="text-sm text-muted-foreground">No hay gasto registrado</p>
+                                        ) : (
+                                            event.tareas.map((tarea) => (
+                                                <div key={tarea.id} className="flex items-center justify-between">
+                                                    <div className="flex items-center space-x-2">
+                                                        <Checkbox
+                                                            id={tarea.id}
+                                                            checked={tarea.completado}
+                                                            onCheckedChange={() => toggleTaskCompletion(tarea.id)}
+                                                        />
+                                                        <label
+                                                            htmlFor={tarea.id}
+                                                            className={`text-sm ${tarea.completado ? "line-through text-muted-foreground" : ""}`}
+                                                        >
+                                                            {tarea.nombre}
+                                                        </label>
+                                                    </div>
+                                                    <Button variant="ghost" size="icon" className="h-7 w-7">
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            ))
+                                        )
+                                    }
+                                </div>
+                            </div>
                         </CardContent>
                     </Card>
                 </TabsContent>
@@ -243,7 +318,7 @@ export default function EventDetail() {
                                                     <div>
                                                         <div className="font-medium">{gasto.descripcion}</div>
                                                         <div className="text-sm text-muted-foreground">
-                                                            {gasto.categoria} • Paid by {gasto.responsable} • {formatDate(gasto.fecha)}
+                                                            {gasto.categoria} • Contratado por {gasto.responsable} • {formatDate(gasto.fecha)}
                                                         </div>
                                                     </div>
                                                     <div className="flex items-center gap-3">
@@ -261,6 +336,72 @@ export default function EventDetail() {
                                             ))}
                                         </div>
                                     )}
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        <div>
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Agregar Gasto</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <form className="space-y-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="descripcion">Descripción</Label>
+                                            <Input
+                                                id="descripcion"
+                                                placeholder="Descripción del gasto"
+                                                value={newGasto.descripcion}
+                                                onChange={(e) => setNewGasto({ ...newGasto, descripcion: e.target.value })}
+                                                required
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="amount">Monto</Label>
+                                            <Input
+                                                id="monto"
+                                                type="number"
+                                                step="0.01"
+                                                min="0"
+                                                placeholder="0.00"
+                                                value={newGasto.monto}
+                                                onChange={(e) => setNewGasto({ ...newGasto, monto: e.target.value })}
+                                                required
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="category">Categoría</Label>
+                                            <Select
+                                                value={newGasto.categoria}
+                                                onValueChange={(value) => setNewGasto({ ...newGasto, categoria: value })}
+                                            >
+                                                <SelectTrigger id="category">
+                                                    <SelectValue placeholder="Seleccione una categoría de gastos" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {categoriaGastos.map((category) => (
+                                                        <SelectItem key={category} value={category}>
+                                                            {category}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="responsable">Responsable</Label>
+                                            <Input
+                                                id="responsable"
+                                                placeholder="Responsable del gasto"
+                                                value={newGasto.responsable}
+                                                onChange={(e) => setNewGasto({ ...newGasto, responsable: e.target.value })}
+                                                required
+                                            />
+                                        </div>
+                                        <Button type="submit" className="w-full">
+                                            Enviar
+                                        </Button>
+                                    </form>
                                 </CardContent>
                             </Card>
                         </div>
