@@ -26,3 +26,22 @@ export interface Event {
     tareas: Tarea[];
     gastos: Gasto[];
 }
+
+export interface Staff {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+    role: string;
+    skills: string[];
+    assignedEvents: string[];
+    availability: {
+        monday: boolean;
+        tuesday: boolean;
+        wednesday: boolean;
+        thursday: boolean;
+        friday: boolean;
+        saturday: boolean;
+        sunday: boolean;
+    };
+}
