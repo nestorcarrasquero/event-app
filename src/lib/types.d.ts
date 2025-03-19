@@ -27,7 +27,7 @@ export interface Event {
     gastos: Gasto[];
 }
 
-export interface Staff {
+export interface IStaff {
     id: string;
     name: string;
     email: string;
