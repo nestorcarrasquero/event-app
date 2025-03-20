@@ -27,7 +27,7 @@ const FormSchema = z.object({
         message: "El nombre debe tener al menos 2 caracteres"
     }),
     /*skills: z.array(z.string()),
-    assignedEvents: z.array(z.string()),
+    assignedEvents: z.array(z.string()),*/
     availability: z.object({
         monday: z.boolean(),
         tuesday: z.boolean(),
@@ -36,7 +36,7 @@ const FormSchema = z.object({
         friday: z.boolean(),
         saturday: z.boolean(),
         sunday: z.boolean(),
-    })*/
+    }),
 })
 
 export default function StaffForm() {
@@ -48,7 +48,7 @@ export default function StaffForm() {
             telefono: "",
             rol: "",
             /*skills: [],
-            assignedEvents: [],
+            assignedEvents: [],*/
             availability: {
                 monday: false,
                 tuesday: false,
@@ -57,7 +57,7 @@ export default function StaffForm() {
                 friday: false,
                 saturday: false,
                 sunday: false,
-            }*/
+            },
         },
     })
 
