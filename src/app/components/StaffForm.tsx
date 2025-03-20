@@ -1,11 +1,13 @@
 'use client'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { PhoneInput } from "@/components/ui/phone-input"
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { isValidPhoneNumber } from "react-phone-number-input"
 import { toast } from "sonner"
@@ -40,6 +42,24 @@ const FormSchema = z.object({
 })
 
 export default function StaffForm() {
+    const [availability, setAvailability] = useState({
+        monday: false,
+        tuesday: false,
+        wednesday: false,
+        thursday: false,
+        friday: false,
+        saturday: false,
+        sunday: false,
+      })
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const toggleAvailability = (day) => {
+        setAvailability({
+          ...availability,
+          [day]: !availability[day],
+        })
+      }
+
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -49,15 +69,7 @@ export default function StaffForm() {
             rol: "",
             /*skills: [],
             assignedEvents: [],*/
-            availability: {
-                monday: false,
-                tuesday: false,
-                wednesday: false,
-                thursday: false,
-                friday: false,
-                saturday: false,
-                sunday: false,
-            },
+            availability: availability,
         },
     })
 
@@ -129,6 +141,43 @@ export default function StaffForm() {
                                         <FormControl>
                                             <Input placeholder="Ingrese rol" {...field} />
                                         </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="availability"
+                                render={() => (
+                                    <FormItem>
+                                        <div className="mb-4">
+                                            <FormLabel className="text-base">Availability</FormLabel>                                            
+                                        </div>
+                                        {Object.entries(availability).map(([day, isAvailable]) => (
+                                            <FormField
+                                                key={day}
+                                                control={form.control}
+                                                name="availability"
+                                                render={({ field }) => {
+                                                    return (
+                                                        <FormItem
+                                                            key={day}
+                                                            className="flex flex-row items-start space-x-3 space-y-0"
+                                                        >
+                                                            <FormControl>
+                                                                <Checkbox
+                                                                    checked={isAvailable}
+                                                                    onCheckedChange={() => toggleAvailability(day)}
+                                                                />
+                                                            </FormControl>
+                                                            <FormLabel className="text-sm font-normal">
+                                                                {day.charAt(0).toUpperCase() + day.slice(1)}
+                                                            </FormLabel>
+                                                        </FormItem>
+                                                    )
+                                                }}
+                                            />
+                                        ))}
                                         <FormMessage />
                                     </FormItem>
                                 )}
