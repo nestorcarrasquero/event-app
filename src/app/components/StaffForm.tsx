@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input"
 import { PhoneInput } from "@/components/ui/phone-input"
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
-import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { isValidPhoneNumber } from "react-phone-number-input"
 import { toast } from "sonner"
@@ -30,36 +29,43 @@ const FormSchema = z.object({
     }),
     /*skills: z.array(z.string()),
     assignedEvents: z.array(z.string()),*/
-    availability: z.object({
-        monday: z.boolean(),
-        tuesday: z.boolean(),
-        wednesday: z.boolean(),
-        thursday: z.boolean(),
-        friday: z.boolean(),
-        saturday: z.boolean(),
-        sunday: z.boolean(),
+    availability: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one item.",
     }),
 })
 
+const days = [
+    {
+        id: "lunes",
+        label: "Lunes",
+    },
+    {
+        id: "martes",
+        label: "Martes",
+    },
+    {
+        id: "miercoles",
+        label: "Miercoles",
+    },
+    {
+        id: "jueves",
+        label: "Jueves",
+    },
+    {
+        id: "viernes",
+        label: "Viernes",
+    },
+    {
+        id: "sabado",
+        label: "Sabado",
+    },
+    {
+        id: "domingo",
+        label: "Domingo",
+    },
+] as const
+
 export default function StaffForm() {
-    const [availability, setAvailability] = useState({
-        monday: false,
-        tuesday: false,
-        wednesday: false,
-        thursday: false,
-        friday: false,
-        saturday: false,
-        sunday: false,
-      })
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const toggleAvailability = (day) => {
-        setAvailability({
-          ...availability,
-          [day]: !availability[day],
-        })
-      }
-
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -69,7 +75,7 @@ export default function StaffForm() {
             rol: "",
             /*skills: [],
             assignedEvents: [],*/
-            availability: availability,
+            availability: [],
         },
     })
 
@@ -85,10 +91,10 @@ export default function StaffForm() {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="w-[500px] shadow-2xl max-h-[650px] overflow-y-auto mx-auto">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="w-[500px] shadow-2xl max-h-[700px] overflow-y-auto mx-auto">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Registrar Personal</CardTitle>
+                        <CardTitle>Registrar Staff</CardTitle>
                         <CardDescription>Ingrese los datos necesarios para registrar personal</CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -151,33 +157,43 @@ export default function StaffForm() {
                                 render={() => (
                                     <FormItem>
                                         <div className="mb-4">
-                                            <FormLabel className="text-base">Availability</FormLabel>                                            
+                                            <FormLabel>Disponibilidad</FormLabel>
                                         </div>
-                                        {Object.entries(availability).map(([day, isAvailable]) => (
-                                            <FormField
-                                                key={day}
-                                                control={form.control}
-                                                name="availability"
-                                                render={({ field }) => {
-                                                    return (
-                                                        <FormItem
-                                                            key={day}
-                                                            className="flex flex-row items-start space-x-3 space-y-0"
-                                                        >
-                                                            <FormControl>
-                                                                <Checkbox
-                                                                    checked={isAvailable}
-                                                                    onCheckedChange={() => toggleAvailability(day)}
-                                                                />
-                                                            </FormControl>
-                                                            <FormLabel className="text-sm font-normal">
-                                                                {day.charAt(0).toUpperCase() + day.slice(1)}
-                                                            </FormLabel>
-                                                        </FormItem>
-                                                    )
-                                                }}
-                                            />
-                                        ))}
+                                        <div className="grid grid-cols-3 gap-4">
+                                            {days.map((day) => (
+                                                <FormField
+                                                    key={day.id}
+                                                    control={form.control}
+                                                    name="availability"
+                                                    render={({ field }) => {
+                                                        return (
+                                                            <FormItem
+                                                                key={day.id}
+                                                                className="flex flex-row items-start space-x-3 space-y-0"
+                                                            >
+                                                                <FormControl>
+                                                                    <Checkbox
+                                                                        checked={field.value?.includes(day.id)}
+                                                                        onCheckedChange={(checked) => {
+                                                                            return checked
+                                                                                ? field.onChange([...field.value, day.id])
+                                                                                : field.onChange(
+                                                                                    field.value?.filter(
+                                                                                        (value) => value !== day.id
+                                                                                    )
+                                                                                )
+                                                                        }}
+                                                                    />
+                                                                </FormControl>
+                                                                <FormLabel className="text-sm font-normal">
+                                                                    {day.label}
+                                                                </FormLabel>
+                                                            </FormItem>
+                                                        )
+                                                    }}
+                                                />
+                                            ))}
+                                        </div>
                                         <FormMessage />
                                     </FormItem>
                                 )}

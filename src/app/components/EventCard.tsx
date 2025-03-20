@@ -96,7 +96,7 @@ export default function EventCard() {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="w-[500px] shadow-2xl max-h-[650px] overflow-y-auto mx-auto">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="w-[500px] shadow-2xl max-h-[700px] overflow-y-auto mx-auto">
                 <Card>
                     <CardHeader>
                         <CardTitle>Crear Evento</CardTitle>

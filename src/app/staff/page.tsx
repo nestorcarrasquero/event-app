@@ -15,15 +15,7 @@ const initialStaff: IStaff[] = [
         rol: "Event Coordinator",
         skills: ["Setup", "Coordination", "Customer Service"],
         assignedEvents: ["1"],
-        availability: {
-            monday: true,
-            tuesday: true,
-            wednesday: true,
-            thursday: true,
-            friday: true,
-            saturday: false,
-            sunday: false,
-        },
+        availability: [],
     },
     {
         id: "2",
@@ -33,15 +25,7 @@ const initialStaff: IStaff[] = [
         rol: "Technical Support",
         skills: ["AV Equipment", "Lighting", "Sound Systems"],
         assignedEvents: ["2"],
-        availability: {
-            monday: true,
-            tuesday: true,
-            wednesday: true,
-            thursday: true,
-            friday: true,
-            saturday: true,
-            sunday: false,
-        },
+        availability: [],
     },
     {
         id: "3",
@@ -51,15 +35,7 @@ const initialStaff: IStaff[] = [
         rol: "Logistics Manager",
         skills: ["Inventory", "Transportation", "Vendor Management"],
         assignedEvents: ["1", "2"],
-        availability: {
-            monday: true,
-            tuesday: true,
-            wednesday: true,
-            thursday: true,
-            friday: true,
-            saturday: true,
-            sunday: true,
-        },
+        availability: [],
     },
 ]
 

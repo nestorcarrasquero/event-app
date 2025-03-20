@@ -35,13 +35,5 @@ export interface IStaff {
     rol: string;
     skills: string[];
     assignedEvents: string[];
-    availability: {
-        monday: boolean;
-        tuesday: boolean;
-        wednesday: boolean;
-        thursday: boolean;
-        friday: boolean;
-        saturday: boolean;
-        sunday: boolean;
-    };
+    availability: string[];
 }

@@ -6,7 +6,7 @@ export default function EventsLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <section className="flex items-center justify-center h-screen bg-gray-100">
+        <section className="flex justify-center h-screen bg-gray-100">
             {children}
             <Toaster />
         </section>
