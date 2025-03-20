@@ -29,10 +29,10 @@ export interface Event {
 
 export interface IStaff {
     id: string;
-    name: string;
+    nombre: string;
     email: string;
-    phone: string;
-    role: string;
+    telefono: string;
+    rol: string;
     skills: string[];
     assignedEvents: string[];
     availability: {

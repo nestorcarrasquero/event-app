@@ -16,9 +16,9 @@ export default function Staff({ staffs }: Props) {
                     <Link href={`/staff/${stf.id}`} key={stf.id} className="cursor-pointer">
                         <Card className="h-full hover:shadow-md transition-shadow cursor-pointer">
                             <CardHeader>
-                                <CardTitle>{stf.name}</CardTitle>
+                                <CardTitle>{stf.nombre}</CardTitle>
                                 <Badge variant="outline" className="w-fit">
-                                    {stf.role}
+                                    {stf.rol}
                                 </Badge>
                             </CardHeader>
                             <CardContent className="space-y-3">
@@ -28,7 +28,7 @@ export default function Staff({ staffs }: Props) {
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <Phone className="h-4 w-4 text-muted-foreground" />
-                                    <span className="text-sm">{stf.phone}</span>
+                                    <span className="text-sm">{stf.telefono}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <Calendar className="h-4 w-4 text-muted-foreground" />

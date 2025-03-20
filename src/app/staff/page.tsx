@@ -9,10 +9,10 @@ import Staff from "../components/Staff";
 const initialStaff: IStaff[] = [
     {
         id: "1",
-        name: "Alex Johnson",
+        nombre: "Alex Johnson",
         email: "alex.johnson@example.com",
-        phone: "555-123-4567",
-        role: "Event Coordinator",
+        telefono: "555-123-4567",
+        rol: "Event Coordinator",
         skills: ["Setup", "Coordination", "Customer Service"],
         assignedEvents: ["1"],
         availability: {
@@ -27,10 +27,10 @@ const initialStaff: IStaff[] = [
     },
     {
         id: "2",
-        name: "Morgan Smith",
+        nombre: "Morgan Smith",
         email: "morgan.smith@example.com",
-        phone: "555-987-6543",
-        role: "Technical Support",
+        telefono: "555-987-6543",
+        rol: "Technical Support",
         skills: ["AV Equipment", "Lighting", "Sound Systems"],
         assignedEvents: ["2"],
         availability: {
@@ -45,10 +45,10 @@ const initialStaff: IStaff[] = [
     },
     {
         id: "3",
-        name: "Jamie Wilson",
+        nombre: "Jamie Wilson",
         email: "jamie.wilson@example.com",
-        phone: "555-456-7890",
-        role: "Logistics Manager",
+        telefono: "555-456-7890",
+        rol: "Logistics Manager",
         skills: ["Inventory", "Transportation", "Vendor Management"],
         assignedEvents: ["1", "2"],
         availability: {
@@ -77,7 +77,7 @@ export default function StaffPage() {
             </Link>
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold">Staff</h1>
-                <Link href="/events/new">
+                <Link href="/staff/new">
                     <Button className="gap-2">
                         <Plus className="h-4 w-4" />
                         Incluir
