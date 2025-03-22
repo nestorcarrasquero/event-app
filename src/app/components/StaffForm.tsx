@@ -5,6 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { PhoneInput } from "@/components/ui/phone-input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
 import { useForm } from "react-hook-form"
@@ -65,6 +66,38 @@ const days = [
     },
 ] as const
 
+const staffRoles = [
+    "Event Coordinator",
+    "Technical Support",
+    "Logistics Manager",
+    "Security Personnel",
+    "Catering Staff",
+    "Registration Assistant",
+    "Venue Manager",
+    "AV Technician",
+    "Transportation Coordinator",
+    "Cleaning Staff",
+]
+
+// Common staff skills
+const commonSkills = [
+    "Setup",
+    "Coordination",
+    "Customer Service",
+    "AV Equipment",
+    "Lighting",
+    "Sound Systems",
+    "Inventory",
+    "Transportation",
+    "Vendor Management",
+    "Security",
+    "First Aid",
+    "Food Service",
+    "Registration",
+    "Cleaning",
+    "Photography",
+]
+
 export default function StaffForm() {
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
@@ -91,7 +124,7 @@ export default function StaffForm() {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="w-[500px] shadow-2xl max-h-[700px] overflow-y-auto mx-auto">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="w-[500px] shadow-2xl max-h-[600px] overflow-y-auto mx-auto">
                 <Card>
                     <CardHeader>
                         <CardTitle>Registrar Staff</CardTitle>
@@ -144,13 +177,23 @@ export default function StaffForm() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Rol</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="Ingrese rol" {...field} />
-                                        </FormControl>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Seleccione el rol" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent position="popper">
+                                                {staffRoles.map((role, index) => (
+                                                    <SelectItem value={role} key={index}>{role}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
+
                             <FormField
                                 control={form.control}
                                 name="availability"

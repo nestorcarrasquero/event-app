@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { IStaff } from "@/lib/types"
 import { Calendar, Mail, Phone } from "lucide-react"
 import Link from "next/link"
@@ -44,6 +44,14 @@ export default function Staff({ staffs }: Props) {
                                     ))}
                                 </div>
                             </CardContent>
+                            <CardFooter>
+                                <div className="text-xs text-muted-foreground">
+                                    Available:{" "}
+                                    {stf.availability
+                                        .map(([day]) => day.charAt(0).toUpperCase() + day.slice(1, 3))
+                                        .join(", ")}
+                                </div>
+                            </CardFooter>
                         </Card>
                     </Link>
                 ))
