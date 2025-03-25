@@ -2,12 +2,17 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
+import { CommandInput, Command, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { PhoneInput } from "@/components/ui/phone-input"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { cn } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { Check, ChevronsUpDown } from "lucide-react"
 import Link from "next/link"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { isValidPhoneNumber } from "react-phone-number-input"
 import { toast } from "sonner"
@@ -28,8 +33,8 @@ const FormSchema = z.object({
     rol: z.string().min(2, {
         message: "El nombre debe tener al menos 2 caracteres"
     }),
-    /*skills: z.array(z.string()),
-    assignedEvents: z.array(z.string()),*/
+    skills: z.array(z.string()),
+    /*assignedEvents: z.array(z.string()),*/
     availability: z.array(z.string()).refine((value) => value.some((item) => item), {
         message: "You have to select at least one item.",
     }),
@@ -99,6 +104,7 @@ const commonSkills = [
 ]
 
 export default function StaffForm() {
+    const [dynamicHeight, setDynamicHeight] = useState(0)
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -106,8 +112,8 @@ export default function StaffForm() {
             email: "",
             telefono: "",
             rol: "",
-            /*skills: [],
-            assignedEvents: [],*/
+            skills: [],
+            /*assignedEvents: [],*/
             availability: [],
         },
     })
@@ -120,6 +126,19 @@ export default function StaffForm() {
                 </pre>
             )
         })
+    }
+
+    const handleSetValue = (val: string) => {
+        const currentSkills = form.getValues("skills");
+        const value = [...currentSkills];
+        if (currentSkills.includes(val)) {
+            value.splice(value.indexOf(val), 1);
+            form.setValue("skills", value.filter((item) => item !== val));
+        } else {
+            form.setValue("skills", [...value, val]);
+        }
+        const height = Math.max(5, 5 + (currentSkills.length * 20))  
+        setDynamicHeight(height)
     }
 
     return (
@@ -193,7 +212,6 @@ export default function StaffForm() {
                                     </FormItem>
                                 )}
                             />
-
                             <FormField
                                 control={form.control}
                                 name="availability"
@@ -237,6 +255,68 @@ export default function StaffForm() {
                                                 />
                                             ))}
                                         </div>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="skills"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-col">
+                                        <FormLabel>Skills</FormLabel>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <FormControl style={{minHeight: `${dynamicHeight}px`}}>
+                                                    <Button
+                                                        variant="outline"
+                                                        role="combobox"
+                                                        className={cn(
+                                                            "justify-between",
+                                                            !field.value && "text-muted-foreground"
+                                                        )}
+                                                    >
+                                                        <div className="grid grid-cols-3 gap-2 justify-start">
+                                                            {form.getValues("skills")?.length ?
+                                                                form.getValues("skills").map((val, i) => (
+                                                                    <div key={i} className="px-2 py-1 rounded-xl border bg-slate-200 text-xs font-medium">{commonSkills.find((framework) => framework === val)}</div>
+                                                                ))
+                                                                : "Select skill..."}
+                                                        </div>
+                                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                    </Button>
+                                                </FormControl>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="p-0">
+                                                <Command>
+                                                    <CommandInput
+                                                        placeholder="Search skill..."
+                                                        className="h-9"
+                                                    />
+                                                    <CommandList>
+                                                        <CommandEmpty>No skill found.</CommandEmpty>
+                                                        <CommandGroup>
+                                                            {commonSkills.map((language) => (
+                                                                <CommandItem
+                                                                    value={language}
+                                                                    key={language}
+                                                                    onSelect={() => {
+                                                                        handleSetValue(language)
+                                                                    }}
+                                                                >
+                                                                    {language}
+                                                                    <Check
+                                                                        className={cn(
+                                                                            "mr-2 h-4 w-4",
+                                                                            form.getValues("skills").includes(language) ? "opacity-100" : "opacity-0"
+                                                                        )} />
+                                                                </CommandItem>
+                                                            ))}
+                                                        </CommandGroup>
+                                                    </CommandList>
+                                                </Command>
+                                            </PopoverContent>
+                                        </Popover>
                                         <FormMessage />
                                     </FormItem>
                                 )}
