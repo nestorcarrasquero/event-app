@@ -33,10 +33,12 @@ const FormSchema = z.object({
     rol: z.string().min(2, {
         message: "El nombre debe tener al menos 2 caracteres"
     }),
-    skills: z.array(z.string()),
+    skills: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "Debe seleccionar al menos un skill",
+    }),
     /*assignedEvents: z.array(z.string()),*/
     availability: z.array(z.string()).refine((value) => value.some((item) => item), {
-        message: "You have to select at least one item.",
+        message: "Debe seleccionar al menos un día de disponibilidad",
     }),
 })
 
@@ -143,7 +145,7 @@ export default function StaffForm() {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="w-[500px] shadow-2xl max-h-[600px] overflow-y-auto mx-auto">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="w-[500px] shadow-2xl max-h-[700px] overflow-y-auto mx-auto">
                 <Card>
                     <CardHeader>
                         <CardTitle>Registrar Staff</CardTitle>
