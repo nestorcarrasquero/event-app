@@ -1,8 +1,10 @@
 'use client'
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Event, IStaff } from "@/lib/types";
+import { formatDate } from "@/lib/utils";
 import { Calendar, ChevronLeft, Mail, Phone } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -88,11 +90,15 @@ export default function StaffDetail() {
     const params = useParams();
     const router = useRouter()
     const [staff, setStaff] = useState<IStaff | null>(null)
+    const [assignedEvents, setAssignedEvents] = useState<Event[]>([])
+    const [unassignedEvents, setUnassignedEvents] = useState<Event[]>([])
 
     useEffect(() => {
         const foundStaff = initialStaff.find((staff) => staff.id === params.id)
         if (foundStaff) {
             setStaff(foundStaff)
+            setAssignedEvents(initialEvents.filter((e) => foundStaff.assignedEvents.includes(e.id)))
+            setUnassignedEvents(initialEvents.filter((e) => !foundStaff.assignedEvents.includes(e.id)))
         } else {
             router.push("/staff")
         }
@@ -129,7 +135,7 @@ export default function StaffDetail() {
                                     <div className="flex items-center gap-2">
                                         <Phone className="h-5 w-5 text-muted-foreground" />
                                         <div>
-                                            <div className="font-medium">Phone</div>
+                                            <div className="font-medium">Telefono</div>
                                             <div>{staff.telefono}</div>
                                         </div>
                                     </div>
@@ -155,9 +161,9 @@ export default function StaffDetail() {
 
                                     <div className="font-medium mt-4 mb-2">Disponibilidad</div>
                                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                        {Object.entries(staff.availability).map((day, index) => (
+                                        {staff.availability.map((day, index) => (
                                             <div key={index} className="flex items-center space-x-2">
-                                                <Checkbox id={`view-${day}`}  disabled />
+                                                <Checkbox id={`view-${day}`} disabled />
                                                 <label
                                                     htmlFor={`view-${day}`}
                                                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -169,6 +175,62 @@ export default function StaffDetail() {
                                     </div>
                                 </div>
                             </div>
+                        </CardContent>
+                    </Card>
+                    <Card className="mt-6">
+                        <CardHeader>
+                            <CardTitle>Assigned Events</CardTitle>
+                            <CardDescription>Events this staff member is assigned to work</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {assignedEvents.length === 0 ? (
+                                <p className="text-center py-6 text-muted-foreground">
+                                    This staff member is not assigned to any events yet.
+                                </p>
+                            ) : (
+                                <div className="space-y-4">
+                                    {assignedEvents.map((event) => (
+                                        <div key={event.id} className="flex justify-between items-center p-4 border rounded-md">
+                                            <div>
+                                                <div className="font-medium">{event.titulo}</div>
+                                                <div className="text-sm text-muted-foreground">
+                                                    {formatDate(event.fechaEvento)} • {event.direccion}
+                                                </div>
+                                            </div>
+                                            <Button variant="outline" size="sm" onClick={() => removeFromEvent(event.id)}>
+                                                Remove
+                                            </Button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                </div>
+                <div>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Assign to Event</CardTitle>
+                            <CardDescription>Add this staff member to an event</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {unassignedEvents.length === 0 ? (
+                                <p className="text-center py-6 text-muted-foreground">No available events to assign.</p>
+                            ) : (
+                                <div className="space-y-4">
+                                    {unassignedEvents.map((event) => (
+                                        <div key={event.id} className="flex justify-between items-center p-4 border rounded-md">
+                                            <div>
+                                                <div className="font-medium">{event.titulo}</div>
+                                                <div className="text-sm text-muted-foreground">{formatDate(event.fechaEvento)}</div>
+                                            </div>
+                                            <Button variant="outline" size="sm" onClick={() => assignToEvent(event.id)}>
+                                                Assign
+                                            </Button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
                 </div>
