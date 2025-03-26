@@ -63,6 +63,7 @@ const initialEvents: Event[] = [
             { id: "e1", categoria: "Alquiler", descripcion: "Alquiler de salón", fecha: new Date(), monto: 2000, responsable: "Pedro Perez" },
             { id: "e2", categoria: "Reserva", descripcion: "Reserva de hotel", fecha: new Date(), monto: 2524, responsable: "Maria Lopez" },
         ],
+        staff: ["1"],
     },
     {
         id: "2",
@@ -83,18 +84,19 @@ const initialEvents: Event[] = [
             { id: "e1", categoria: "Marketing", descripcion: "Marketing de materiales", fecha: new Date(), monto: 560, responsable: "Luis Rodriguez" },
             { id: "e2", categoria: "Publicidad", descripcion: "Publicidad de evento", fecha: new Date(), monto: 3434, responsable: "Adriana Ramirez" },
         ],
+        staff: ["2"],
     },
 ]
 
 export default function StaffDetail() {
     const params = useParams();
     const router = useRouter()
-    const [staff, setStaff] = useState<IStaff | null>(null)
+    const [staff, setStaff] = useState<IStaff>()
     const [assignedEvents, setAssignedEvents] = useState<Event[]>([])
     const [unassignedEvents, setUnassignedEvents] = useState<Event[]>([])
 
     useEffect(() => {
-        const foundStaff = initialStaff.find((staff) => staff.id === params.id)
+        const foundStaff = initialStaff.find((s) => s.id === params.id)
         if (foundStaff) {
             setStaff(foundStaff)
             setAssignedEvents(initialEvents.filter((e) => foundStaff.assignedEvents.includes(e.id)))
@@ -106,6 +108,36 @@ export default function StaffDetail() {
 
     if (!staff) {
         return <div className="container mx-auto px-4 py-8">Loading...</div>
+    }
+
+    const assignToEvent = (eventId: string) => {
+        // In a real app, this would be an API call
+        const updatedStaffMember = {
+            ...staff,
+            assignedEvents: [...staff.assignedEvents, eventId],
+        }
+
+        setStaff(updatedStaffMember)
+
+        // Update the assigned and unassigned events lists
+        const eventToAssign = unassignedEvents.find((e) => e.id === eventId) as Event
+        setAssignedEvents([...assignedEvents, eventToAssign])
+        setUnassignedEvents(unassignedEvents.filter((e) => e.id !== eventId))
+    }
+
+    const removeFromEvent = (eventId: string) => {
+        // In a real app, this would be an API call
+        const updatedStaffMember = {
+            ...staff,
+            assignedEvents: staff.assignedEvents.filter((id) => id !== eventId),
+        }
+
+        setStaff(updatedStaffMember)
+
+        // Update the assigned and unassigned events lists
+        const eventToUnassign = assignedEvents.find((e) => e.id === eventId) as Event
+        setUnassignedEvents([...unassignedEvents, eventToUnassign])
+        setAssignedEvents(assignedEvents.filter((e) => e.id !== eventId))
     }
 
     return (
@@ -163,12 +195,12 @@ export default function StaffDetail() {
                                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                                         {staff.availability.map((day, index) => (
                                             <div key={index} className="flex items-center space-x-2">
-                                                <Checkbox id={`view-${day}`} disabled />
+                                                <Checkbox id={`view-${day}`} disabled checked={true} />
                                                 <label
                                                     htmlFor={`view-${day}`}
                                                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                                 >
-                                                    {day}
+                                                    {day.charAt(0).toUpperCase() + day.slice(1)}
                                                 </label>
                                             </div>
                                         ))}
@@ -179,13 +211,13 @@ export default function StaffDetail() {
                     </Card>
                     <Card className="mt-6">
                         <CardHeader>
-                            <CardTitle>Assigned Events</CardTitle>
-                            <CardDescription>Events this staff member is assigned to work</CardDescription>
+                            <CardTitle>Eventos Asignados</CardTitle>
+                            <CardDescription>Eventos en los que esta persona está asignada para trabajar</CardDescription>
                         </CardHeader>
                         <CardContent>
                             {assignedEvents.length === 0 ? (
                                 <p className="text-center py-6 text-muted-foreground">
-                                    This staff member is not assigned to any events yet.
+                                    Esta persona no tiene asignado algún evento
                                 </p>
                             ) : (
                                 <div className="space-y-4">
@@ -198,7 +230,7 @@ export default function StaffDetail() {
                                                 </div>
                                             </div>
                                             <Button variant="outline" size="sm" onClick={() => removeFromEvent(event.id)}>
-                                                Remove
+                                                Remover
                                             </Button>
                                         </div>
                                     ))}
@@ -210,12 +242,12 @@ export default function StaffDetail() {
                 <div>
                     <Card>
                         <CardHeader>
-                            <CardTitle>Assign to Event</CardTitle>
-                            <CardDescription>Add this staff member to an event</CardDescription>
+                            <CardTitle>Asignar a Evento</CardTitle>
+                            <CardDescription>Agregar esta persona a un evento</CardDescription>
                         </CardHeader>
                         <CardContent>
                             {unassignedEvents.length === 0 ? (
-                                <p className="text-center py-6 text-muted-foreground">No available events to assign.</p>
+                                <p className="text-center py-6 text-muted-foreground">No hay evento disponible para asignar</p>
                             ) : (
                                 <div className="space-y-4">
                                     {unassignedEvents.map((event) => (
@@ -225,7 +257,7 @@ export default function StaffDetail() {
                                                 <div className="text-sm text-muted-foreground">{formatDate(event.fechaEvento)}</div>
                                             </div>
                                             <Button variant="outline" size="sm" onClick={() => assignToEvent(event.id)}>
-                                                Assign
+                                                Asignar
                                             </Button>
                                         </div>
                                     ))}

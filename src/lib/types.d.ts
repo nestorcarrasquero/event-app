@@ -25,6 +25,7 @@ export interface Event {
     telefono: string;
     tareas: Tarea[];
     gastos: Gasto[];
+    staff: string[];
 }
 
 export interface IStaff {

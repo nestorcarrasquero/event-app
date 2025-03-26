@@ -47,6 +47,9 @@ export default function RootLayout({
                 <Link href="/staff">
                   <Button variant="ghost">Staff</Button>
                 </Link>
+                <Link href="/calendar">
+                  <Button variant="ghost">Calendario</Button>
+                </Link>
               </nav>
             </div>
           </header>
