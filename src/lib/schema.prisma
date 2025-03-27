@@ -1,0 +1,52 @@
+model Event {
+  id            Int       @id @default(autoincrement())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  titulo        String    
+  fechaEvento   DateTime
+  fechaContrato DateTime
+  organizador   String
+  direccion     String
+  cliente       String
+  email         String
+  telefono      String  
+  gastos        Gasto[]
+  tareas        Tarea[]
+  staff         Staff[]
+}
+
+model Gasto {
+  id            Int       @id @default(autoincrement())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  descripcion   String
+  monto         Float
+  categoria     String
+  fecha         DateTime
+  responsable   String
+  event         Event     @relation(fields: [eventId], references: [id])
+  eventId       Int       @unique
+}
+
+model Tarea {
+  id            Int       @id @default(autoincrement())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  nombre        String
+  completado    Boolean
+  event         Event     @relation(fields: [eventId], references: [id])
+  eventId       Int       @unique
+}
+
+model Staff {
+  id            Int       @id @default(autoincrement())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  nombre        String
+  email         String
+  telefono      String
+  rol           String
+  skills        String
+  events        Event[]
+  availability  String
+}

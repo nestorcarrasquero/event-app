@@ -33,6 +33,7 @@ const initialEvents: Event[] = [
             { id: "e1", categoria: "Alquiler", descripcion: "Alquiler de salón", fecha: new Date(), monto: 2000, responsable: "Pedro Perez" },
             { id: "e2", categoria: "Reserva", descripcion: "Reserva de hotel", fecha: new Date(), monto: 2524, responsable: "Maria Lopez" },
         ],
+        staff: ["1"],
     },
     {
         id: "2",
@@ -53,6 +54,7 @@ const initialEvents: Event[] = [
             { id: "e1", categoria: "Marketing", descripcion: "Marketing de materiales", fecha: new Date(), monto: 560, responsable: "Luis Rodriguez" },
             { id: "e2", categoria: "Publicidad", descripcion: "Publicidad de evento", fecha: new Date(), monto: 3434, responsable: "Adriana Ramirez" },
         ],
+        staff: ["2"],
     },
 ]
 
