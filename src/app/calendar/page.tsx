@@ -2,6 +2,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Event, IStaff } from "@/lib/types";
 import { cn, formatDate } from "@/lib/utils";
 import { CalendarIcon, ChevronLeft, ChevronRight, DollarSign, MapPin, Users } from "lucide-react";
@@ -98,12 +99,12 @@ export default function CalendarPage() {
         setEvents(initialEvents)
     }, [])
 
-    const getDaysInMonth = (year, month) => {
+    const getDaysInMonth = (year: number, month: number) => {
         return new Date(year, month + 1, 0).getDate()
     }
 
     // Get the first day of the month (0 = Sunday, 1 = Monday, etc.)
-    const getFirstDayOfMonth = (year, month) => {
+    const getFirstDayOfMonth = (year: number, month: number) => {
         return new Date(year, month, 1).getDay()
     }
 
@@ -120,6 +121,7 @@ export default function CalendarPage() {
     }
 
     for (let day = 1; day <= daysInMonth; day++) {
+        console.log('a ver')
         const date = new Date(year, month, day)
 
         // Find events for this day
@@ -161,13 +163,28 @@ export default function CalendarPage() {
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <div>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-8">
                 <div>
                     <h1 className="text-3xl font-bold">Calendario de Eventos</h1>
                     <p className="text-muted-foreground">Para ver y manejar los eventos programados</p>
                 </div>
-                <div>
-
+                <div className="flex gap-4 w-full md:w-auto">
+                    <Select value={staffFilter} onValueChange={setStaffFilter}>
+                        <SelectTrigger className="w-full md:w-[200px]">
+                            <SelectValue placeholder="Filter by staff" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Todo el Staff</SelectItem>
+                            {initialStaff.map((staff) => (
+                                <SelectItem key={staff.id} value={staff.id}>
+                                    {staff.nombre}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <Link href="/events/new">
+                        <Button>Agregar Evento</Button>
+                    </Link>
                 </div>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -252,9 +269,9 @@ export default function CalendarPage() {
                                 </div>
                             ) : selectedEvents.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center py-8 text-center">
-                                    <p className="text-muted-foreground mb-4">No events scheduled for this date</p>
+                                    <p className="text-muted-foreground mb-4">No hay evento programado para esta fecha</p>
                                     <Link href="/events/new">
-                                        <Button>Add Event</Button>
+                                        <Button>Agregar Evento</Button>
                                     </Link>
                                 </div>
                             ) : (
