@@ -46,7 +46,19 @@ model Staff {
   email         String
   telefono      String
   rol           String
-  skills        String
+  skills        Skill[]
   events        Event[]
-  availability  String
+  availability  Availability[]
+}
+
+model Availability {
+  id            Int       @id @default(autoincrement())
+  day           String
+  staff         Staff[]
+}
+
+model Skill {
+  id            Int       @id @default(autoincrement())
+  description   String
+  staff         Staff[]
 }
