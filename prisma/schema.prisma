@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Event {
+  id            Int      @id @default(autoincrement())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  titulo        String
+  fechaEvento   DateTime
+  fechaContrato DateTime
+  organizador   String
+  direccion     String
+  cliente       String
+  email         String
+  telefono      String
+  gastos        Gasto[]
+  tareas        Tarea[]
+  staff         Staff[]  @relation("EventToStaff")
+  typeEventId   Int
+  typeEvent     TypeEvent @relation(fields: [typeEventId], references: [id])
+}
+
+model Gasto {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  descripcion String
+  monto       Float
+  fecha       DateTime
+  responsable String
+  eventId     Int      
+  event       Event    @relation(fields: [eventId], references: [id])
+  categoryId  Int      @unique
+  category    Category @relation(fields: [categoryId], references: [id])
+}
+
+model Tarea {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  nombre     String
+  completado Boolean
+  eventId    Int      
+  event      Event    @relation(fields: [eventId], references: [id])
+}
+
+model Staff {
+  id           Int            @id @default(autoincrement())
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  nombre       String
+  email        String         @unique
+  telefono     String
+  availability Availability[] @relation("AvailabilityToStaff")
+  events       Event[]        @relation("EventToStaff")
+  skills       Skill[]        @relation("SkillToStaff")
+  roleId       Int
+  role         Role           @relation(fields: [roleId], references: [id])
+}
+
+model Availability {
+  id    Int     @id @default(autoincrement())
+  day   String
+  staff Staff[] @relation("AvailabilityToStaff")
+}
+
+model Skill {
+  id          Int     @id @default(autoincrement())
+  description String
+  staff       Staff[] @relation("SkillToStaff")
+}
+
+model Role {
+  id          Int     @id @default(autoincrement())
+  description String
+  Staff       Staff[]
+}
+
+model Category {
+  id          Int     @id @default(autoincrement())
+  description String
+  Gasto       Gasto[]
+}
+
+model TypeEvent {
+  id          Int     @id @default(autoincrement())
+  description String
+  events      Event[]
+}
