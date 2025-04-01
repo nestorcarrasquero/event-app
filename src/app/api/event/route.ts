@@ -7,7 +7,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-    const body = await req.json();
+    const body = await req.json();    
     try {
         await prisma.event.create({
             data: {
@@ -19,13 +19,13 @@ export async function POST(req: NextRequest) {
                 organizador: body.organizador,
                 telefono: body.telefono,
                 titulo: body.titulo,
-                typeEvent: body.typeEvent,
+                typeEventId: Number(body.typeEventId),
             }
         })
         return NextResponse.json({
             data: body,
-            message: 'Event added successfully',
-            status: 201
+            message: 'Evento agregado satisfactoriamente',
+            status: 200
         })
     } catch (error) {
         return NextResponse.json({

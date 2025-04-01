@@ -34,7 +34,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { isValidPhoneNumber } from "react-phone-number-input";
 import { PhoneInput } from "@/components/ui/phone-input"
 import Link from "next/link"
+import { useEffect, useState } from "react"
 
+interface TypeProps {
+    id: string,
+    description: string
+}
 
 const FormSchema = z.object({
     fechaEvento: z.date({
@@ -46,7 +51,7 @@ const FormSchema = z.object({
     titulo: z.string().min(2, {
         message: "El título debe tener al menos 2 caracteres"
     }),
-    tipo: z.string({
+    typeEventId: z.string({
         required_error: "El tipo de evento es requerido",
     }),
     organizador: z.string().min(2, {
@@ -70,6 +75,23 @@ const FormSchema = z.object({
 
 
 export default function EventCard() {
+    const [typeEvent, setTypeEvent] = useState([])
+
+    useEffect(() => {
+        async function fetchTypeEvent() {
+            const res = await fetch('/api/typeEvent')
+            const result = await res.json()
+            const data = await result.map((x: TypeProps) => {
+                return {
+                    id: String(x.id),
+                    description: x.description
+                }
+            })
+            setTypeEvent(data)
+        }
+        fetchTypeEvent()
+    }, [])
+
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -81,17 +103,29 @@ export default function EventCard() {
             cliente: '',
             email: '',
             telefono: '',
+            typeEventId: '',
         },
     })
 
-    function onSubmit(data: z.infer<typeof FormSchema>) {
-        toast("You submitted the following values:", {
-            description: (
-                <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                    <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-                </pre>
-            )
-        })
+    async function onSubmit(data: z.infer<typeof FormSchema>) {
+        const settings = {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        };
+        try {            
+            const fetchResponse = await fetch('/api/event', settings)
+            const data = await fetchResponse.json()
+            toast("Mensaje de la aplicación", {
+                description: data.message
+            })            
+            form.reset()
+        } catch (error) {
+            return error
+        }
     }
 
     return (
@@ -119,23 +153,22 @@ export default function EventCard() {
                             />
                             <FormField
                                 control={form.control}
-                                name="tipo"
+                                name="typeEventId"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Tipo</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value} key={`tipo-${field.value}`}>
                                             <FormControl>
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="Seleccione el tipo de evento" />
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent position="popper">
-                                                <SelectItem value="pinata">Piñata</SelectItem>
-                                                <SelectItem value="mini">Mini-Show</SelectItem>
-                                                <SelectItem value="show">Show</SelectItem>
-                                                <SelectItem value="entrevista">Entrevista</SelectItem>
-                                                <SelectItem value="radio">Programa de radio</SelectItem>
-                                                <SelectItem value="beneficio">Beneficio</SelectItem>
+                                                {
+                                                    typeEvent.map((tipo: TypeProps) => (
+                                                        <SelectItem value={tipo.id} key={tipo.id}>{tipo.description}</SelectItem>
+                                                    ))
+                                                }
                                             </SelectContent>
                                         </Select>
                                         <FormMessage />
