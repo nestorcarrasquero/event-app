@@ -121,7 +121,6 @@ export default function CalendarPage() {
     }
 
     for (let day = 1; day <= daysInMonth; day++) {
-        console.log('a ver')
         const date = new Date(year, month, day)
 
         // Find events for this day
@@ -152,7 +151,6 @@ export default function CalendarPage() {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleDateClick = (day: any) => {
-        console.log(day)
         if (!day.day) return
 
         setSelectedDate(day.date)

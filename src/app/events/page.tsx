@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import Events from "../components/Events";
 import { Event } from "@/lib/types";
 
-const initialEvents: Event[] = [
+/*const initialEvents: Event[] = [
     {
         id: "1",
         titulo: "Evento uno",
@@ -49,13 +49,18 @@ const initialEvents: Event[] = [
         ],
         staff: ["2"]
     },
-]
+]*/
 
 export default function EventsPage() {
     const [events, setEvents] = useState<Event[]>([])
 
     useEffect(() => {
-        setEvents(initialEvents)
+        async function fetchEvents() {
+            const res = await fetch('/api/event')
+            const result = await res.json()
+            setEvents(result)
+        }
+        fetchEvents()        
     }, [])
 
     return (

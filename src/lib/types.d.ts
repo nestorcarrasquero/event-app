@@ -26,6 +26,7 @@ export interface Event {
     tareas: Tarea[];
     gastos: Gasto[];
     staff: string[];
+    typeEvent: TypeEvent
 }
 
 export interface IStaff {
@@ -37,4 +38,8 @@ export interface IStaff {
     skills: string[];
     assignedEvents: string[];
     availability: string[];
+}
+
+export interface TypeEvent {
+    description: string;
 }

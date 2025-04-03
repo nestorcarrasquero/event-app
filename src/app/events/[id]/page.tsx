@@ -11,9 +11,15 @@ import { formatDate } from "@/lib/utils";
 import { CalendarDays, ChevronLeft, DollarSign, MapPin, Plus, Trash2, Users } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import { toast } from "sonner";
 
-const initialEvents: Event[] = [
+interface TypeProps {
+    id: string,
+    description: string
+}
+
+/*const initialEvents: Event[] = [
     {
         id: "1",
         titulo: "Evento uno",
@@ -56,9 +62,9 @@ const initialEvents: Event[] = [
         ],
         staff: ["2"],
     },
-]
+]*/
 
-const categoriaGastos = [
+/*const categoriaGastos = [
     "Alquiler",
     "Reserva",
     "Marketing",
@@ -67,28 +73,48 @@ const categoriaGastos = [
     "Transporte",
     "Entretenimiento",
     "Otros"
-]
+]*/
 
 export default function EventDetail() {
-    const params = useParams();
+    const params = useParams<{ id: string }>();
     const router = useRouter()
+    const { id } = params
     const [event, setEvent] = useState<Event | null>(null)
     const [newTask, setNewTask] = useState("")
     const [activeTab, setActiveTab] = useState("overview")
     const [newGasto, setNewGasto] = useState({
         descripcion: "",
-        categoria: "",
+        categoryId: "",
         monto: "",
         responsable: "",
+        eventId: id,
+        fecha: new Date(),
     })
+    const [categories, setCategories] = useState([])
 
     useEffect(() => {
-        const foundEvent = initialEvents.find((event) => event.id === params.id)
-        if (foundEvent) {
-            setEvent(foundEvent)
-        } else {
-            router.push("/events")
+        async function fetchEvent() {
+            const res = await fetch(`/api/event/${params.id}`)
+            const result = await res.json()
+            if (result) {
+                setEvent(result)
+            } else {
+                router.push("/events")
+            }
         }
+        async function fetchCategory() {
+            const res = await fetch('/api/category')
+            const result = await res.json()
+            const data = await result.map((x: TypeProps) => {
+                return {
+                    id: String(x.id),
+                    description: x.description
+                }
+            })
+            setCategories(data)
+        }
+        fetchEvent()
+        fetchCategory()
     }, [params.id, router])
 
     if (!event) {
@@ -119,7 +145,35 @@ export default function EventDetail() {
         })
     }
 
-    const totalExpenses = event.gastos.reduce((sum, gasto) => sum + gasto.monto, 0)
+    const totalExpenses = event.gastos ? event.gastos.reduce((sum, gasto) => sum + gasto.monto, 0) : 0
+
+    async function onSubmit(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault()
+        const formData = new FormData()
+        formData.append("descripcion", newGasto.descripcion)
+        formData.append("monto", newGasto.monto)
+        formData.append("responsable", newGasto.responsable)
+        formData.append("categoryId", newGasto.categoryId)
+        formData.append("eventId", newGasto.eventId)
+        formData.append("fecha", newGasto.fecha.toString())
+        const settings = {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newGasto),
+        }
+        try {
+            const fetchResponse = await fetch('/api/gasto', settings)
+            const data = await fetchResponse.json()
+            toast("Mensaje de la aplicación", {
+                description: data.message
+            })
+        } catch (error) {
+            return error
+        }
+    }
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -177,16 +231,17 @@ export default function EventDetail() {
                             <CardHeader>
                                 <CardTitle>Tareas</CardTitle>
                                 <CardDescription>
-                                    {event.tareas.filter((t) => t.completado).length} de {event.tareas.length} completados
+                                    {event.tareas ? event.tareas.filter((t) => t.completado).length : 0} de
+                                    {event.tareas ? event.tareas.length : 0} completados
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-2">
                                     {
-                                        event.tareas.length === 0 ? (
+                                        event.tareas && event.tareas.length === 0 ? (
                                             <p className="text-sm text-muted-foreground">No hay gasto registrado</p>
                                         ) : (
-                                            event.tareas.map((tarea) => (
+                                            event.tareas && event.tareas.map((tarea) => (
                                                 <div key={tarea.id} className="flex items-center justify-between">
                                                     <div className="flex items-center space-x-2">
                                                         <Checkbox
@@ -215,15 +270,15 @@ export default function EventDetail() {
                             <CardHeader>
                                 <CardTitle>Gastos Recientes</CardTitle>
                                 <CardDescription>
-                                    {event.gastos.length} gastos totalizando ${totalExpenses.toFixed(2)}
+                                    {event.gastos ? event.gastos.length : 0} gastos totalizando ${totalExpenses.toFixed(2)}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                {event.gastos.length === 0 ? (
+                                {event.gastos && event.gastos.length === 0 ? (
                                     <p className="text-sm text-muted-foreground">No hay gasto registrado</p>
                                 ) : (
                                     <div className="space-y-2">
-                                        {event.gastos.slice(0, 3).map((gasto) => (
+                                        {event.gastos && event.gastos.slice(0, 3).map((gasto) => (
                                             <div key={gasto.id} className="flex justify-between items-center">
                                                 <div>
                                                     <div className="font-medium text-sm">{gasto.descripcion}</div>
@@ -232,7 +287,7 @@ export default function EventDetail() {
                                                 <div className="font-medium">${gasto.monto.toFixed(2)}</div>
                                             </div>
                                         ))}
-                                        {event.gastos.length > 3 && (
+                                        {event.gastos && event.gastos.length > 3 && (
                                             <Button variant="link" className="p-0 h-auto" onClick={() => setActiveTab("expenses")}>
                                                 View all expenses
                                             </Button>
@@ -248,7 +303,8 @@ export default function EventDetail() {
                         <CardHeader>
                             <CardTitle>Tareas</CardTitle>
                             <CardDescription>
-                                {event.tareas.filter((t) => t.completado).length} de {event.tareas.length} completados
+                                {event.tareas ? event.tareas.filter((t) => t.completado).length : 0} de
+                                {event.tareas ? event.tareas.length : 0} completados
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
@@ -270,10 +326,10 @@ export default function EventDetail() {
                                 </div>
                                 <div className="space-y-2">
                                     {
-                                        event.tareas.length === 0 ? (
+                                        event.tareas && event.tareas.length === 0 ? (
                                             <p className="text-sm text-muted-foreground">No hay gasto registrado</p>
                                         ) : (
-                                            event.tareas.map((tarea) => (
+                                            event.tareas && event.tareas.map((tarea) => (
                                                 <div key={tarea.id} className="flex items-center justify-between">
                                                     <div className="flex items-center space-x-2">
                                                         <Checkbox
@@ -311,11 +367,11 @@ export default function EventDetail() {
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    {event.gastos.length === 0 ? (
+                                    {event.gastos && event.gastos.length === 0 ? (
                                         <p className="text-center py-6 text-muted-foreground">No hay gasto guardado</p>
                                     ) : (
                                         <div className="space-y-4">
-                                            {event.gastos.map((gasto) => (
+                                            {event.gastos && event.gastos.map((gasto) => (
                                                 <div key={gasto.id} className="flex justify-between items-center p-3 border rounded-md">
                                                     <div>
                                                         <div className="font-medium">{gasto.descripcion}</div>
@@ -348,7 +404,7 @@ export default function EventDetail() {
                                     <CardTitle>Agregar Gasto</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <form className="space-y-4">
+                                    <form className="space-y-4" onSubmit={onSubmit}>
                                         <div className="space-y-2">
                                             <Label htmlFor="descripcion">Descripción</Label>
                                             <Input
@@ -373,18 +429,18 @@ export default function EventDetail() {
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <Label htmlFor="category">Categoría</Label>
+                                            <Label htmlFor="categoryId">Categoría</Label>
                                             <Select
-                                                value={newGasto.categoria}
-                                                onValueChange={(value) => setNewGasto({ ...newGasto, categoria: value })}
+                                                value={newGasto.categoryId}
+                                                onValueChange={(value) => setNewGasto({ ...newGasto, categoryId: value })}
                                             >
-                                                <SelectTrigger id="category">
+                                                <SelectTrigger id="categoryId">
                                                     <SelectValue placeholder="Seleccione una categoría de gastos" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    {categoriaGastos.map((category) => (
-                                                        <SelectItem key={category} value={category}>
-                                                            {category}
+                                                    {categories.map((category: TypeProps) => (
+                                                        <SelectItem key={category.id} value={category.id}>
+                                                            {category.description}
                                                         </SelectItem>
                                                     ))}
                                                 </SelectContent>

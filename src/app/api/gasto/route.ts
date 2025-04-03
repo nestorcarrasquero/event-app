@@ -13,15 +13,15 @@ export async function POST(req: NextRequest) {
             data: {
                 descripcion: body.descripcion,
                 fecha: body.fecha,
-                monto: body.monto,
+                monto: parseFloat(body.monto),
                 responsable: body.responsable,
-                eventId: body.eventId,
-                categoryId: body.categoryId,
+                eventId: Number(body.eventId),
+                categoryId: Number(body.categoryId),
             }
         })
         return NextResponse.json({
             data: body,
-            message: 'Expense added successfully',
+            message: 'Gasto agregado satisfactoriamente',
             status: 201
         })
     } catch (error) {
