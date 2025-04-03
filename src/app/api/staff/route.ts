@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({
             data: body,
             message: 'Staff added successfully',
-            status: 201
+            status: 200
         })
     } catch (error) {
         return NextResponse.json({
@@ -74,7 +74,7 @@ export async function PUT(req: NextRequest) {
         return NextResponse.json({
             data: null,
             message: `Some problem ${error}`,
-            status: 500
+            status: 204
         })
     }
 }

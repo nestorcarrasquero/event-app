@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({
             data: body,
             message: 'Gasto agregado satisfactoriamente',
-            status: 201
+            status: 200
         })
     } catch (error) {
         return NextResponse.json({

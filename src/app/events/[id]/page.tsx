@@ -11,7 +11,7 @@ import { formatDate } from "@/lib/utils";
 import { CalendarDays, ChevronLeft, DollarSign, MapPin, Plus, Trash2, Users } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 interface TypeProps {
@@ -64,17 +64,6 @@ interface TypeProps {
     },
 ]*/
 
-/*const categoriaGastos = [
-    "Alquiler",
-    "Reserva",
-    "Marketing",
-    "Publicidad",
-    "Comida",
-    "Transporte",
-    "Entretenimiento",
-    "Otros"
-]*/
-
 export default function EventDetail() {
     const params = useParams<{ id: string }>();
     const router = useRouter()
@@ -92,50 +81,97 @@ export default function EventDetail() {
     })
     const [categories, setCategories] = useState([])
 
-    useEffect(() => {
-        async function fetchEvent() {
-            const res = await fetch(`/api/event/${params.id}`)
-            const result = await res.json()
-            if (result) {
-                setEvent(result)
-            } else {
-                router.push("/events")
+    const fetchEvent = useCallback(async () => {
+        const res = await fetch(`/api/event/${id}`)
+        const result = await res.json()
+        if (result) {
+            setEvent(result)
+        } else {
+            router.push("/events")
+        }
+    }, [id, router])
+
+    const fetchCategory = useCallback(async () => {
+        const res = await fetch('/api/category')
+        const result = await res.json()
+        const data = await result.map((x: TypeProps) => {
+            return {
+                id: String(x.id),
+                description: x.description
             }
-        }
-        async function fetchCategory() {
-            const res = await fetch('/api/category')
-            const result = await res.json()
-            const data = await result.map((x: TypeProps) => {
-                return {
-                    id: String(x.id),
-                    description: x.description
-                }
-            })
-            setCategories(data)
-        }
+        })
+        setCategories(data)
+    }, [])
+
+    useEffect(() => {
         fetchEvent()
         fetchCategory()
-    }, [params.id, router])
+    }, [fetchEvent, fetchCategory])
 
     if (!event) {
         return <div className="container mx-auto px-4 py-8">Loading...</div>
     }
 
-    const toggleTaskCompletion = (taskId: string) => {
-        setEvent({
-            ...event,
-            tareas: event.tareas.map((tarea) => (tarea.id === taskId ? { ...tarea, completado: !tarea.completado } : tarea)),
-        })
+    const toggleTaskCompletion = async (taskId: string) => {
+        if (taskId === "") return
+        const settings = {
+            method: 'PUT',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                completado: !event.tareas.find((tarea) => tarea.id === taskId)?.completado
+            }),
+        }
+        try {
+            const fetchResponse = await fetch(`/api/tarea/${taskId}`, settings)
+            const data = await fetchResponse.json()
+
+            toast("Mensaje de la aplicación", {
+                description: data.message,
+                className: "text-lg font-bold"
+            })
+
+            fetchEvent()            
+        } catch (error) {
+            return error
+        }        
     }
 
-    const addTask = () => {
+    const addTask = async () => {
         if (newTask.trim() === "") return
+        const settings = {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                eventId: id,
+                nombre: newTask,
+            }),
+        }
+        try {
+            const fetchResponse = await fetch('/api/tarea', settings)
+            const data = await fetchResponse.json()
 
-        setEvent({
+            toast("Mensaje de la aplicación", {
+                description: data.message,
+                className: "text-lg font-bold"
+            })
+
+            fetchEvent()
+            setNewTask("")
+        } catch (error) {
+            return error
+        }
+
+        /*setEvent({
             ...event,
             tareas: [...event.tareas, { id: `t${Date.now()}`, nombre: newTask, completado: false }],
-        })
-        setNewTask("")
+        })*/
+
     }
 
     const removeExpense = (expenseId: string) => {
@@ -149,13 +185,7 @@ export default function EventDetail() {
 
     async function onSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault()
-        const formData = new FormData()
-        formData.append("descripcion", newGasto.descripcion)
-        formData.append("monto", newGasto.monto)
-        formData.append("responsable", newGasto.responsable)
-        formData.append("categoryId", newGasto.categoryId)
-        formData.append("eventId", newGasto.eventId)
-        formData.append("fecha", newGasto.fecha.toString())
+
         const settings = {
             method: 'POST',
             headers: {
@@ -167,8 +197,21 @@ export default function EventDetail() {
         try {
             const fetchResponse = await fetch('/api/gasto', settings)
             const data = await fetchResponse.json()
+
             toast("Mensaje de la aplicación", {
-                description: data.message
+                description: data.message,
+                className: "text-lg font-bold"
+            })
+
+            fetchEvent()
+
+            setNewGasto({
+                descripcion: "",
+                categoryId: "",
+                monto: "",
+                responsable: "",
+                eventId: id,
+                fecha: new Date(),
             })
         } catch (error) {
             return error
@@ -229,71 +272,76 @@ export default function EventDetail() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Card>
                             <CardHeader>
-                                <CardTitle>Tareas</CardTitle>
+                                <CardTitle>Tareas x</CardTitle>
                                 <CardDescription>
-                                    {event.tareas ? event.tareas.filter((t) => t.completado).length : 0} de
-                                    {event.tareas ? event.tareas.length : 0} completados
+                                    {event.tareas ? event.tareas.filter((t) => t.completado).length : 0}&nbsp;de&nbsp;
+                                    {event.tareas ? event.tareas.length : 0}&nbsp;completados
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <div className="space-y-2">
-                                    {
-                                        event.tareas && event.tareas.length === 0 ? (
-                                            <p className="text-sm text-muted-foreground">No hay gasto registrado</p>
-                                        ) : (
-                                            event.tareas && event.tareas.map((tarea) => (
-                                                <div key={tarea.id} className="flex items-center justify-between">
-                                                    <div className="flex items-center space-x-2">
-                                                        <Checkbox
-                                                            id={tarea.id}
-                                                            checked={tarea.completado}
-                                                            onCheckedChange={() => toggleTaskCompletion(tarea.id)}
-                                                        />
-                                                        <label
-                                                            htmlFor={tarea.id}
-                                                            className={`text-sm ${tarea.completado ? "line-through text-muted-foreground" : ""}`}
-                                                        >
-                                                            {tarea.nombre}
-                                                        </label>
+                                {
+                                    event.tareas && event.tareas.length === 0 ? (
+                                        <p className="text-sm text-muted-foreground">No hay Tarea registrada</p>
+                                    ) : (
+                                        <div className="space-y-2">
+                                            {
+                                                event.tareas && event.tareas.map((tarea) => (
+                                                    <div key={tarea.id} className="flex items-center justify-between">
+                                                        <div className="flex items-center space-x-2">
+                                                            <Checkbox
+                                                                id={tarea.id}
+                                                                checked={tarea.completado}
+                                                                onCheckedChange={() => toggleTaskCompletion(tarea.id)}
+                                                            />
+                                                            <label
+                                                                htmlFor={tarea.id}
+                                                                className={`text-sm ${tarea.completado ? "line-through text-muted-foreground" : ""}`}
+                                                            >
+                                                                {tarea.nombre}
+                                                            </label>
+                                                        </div>
                                                     </div>
-                                                    <Button variant="ghost" size="icon" className="h-7 w-7">
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
-                                            ))
-                                        )
-                                    }
-                                </div>
+                                                ))
+                                            }
+                                        </div>
+                                    )
+                                }
                             </CardContent>
                         </Card>
                         <Card>
                             <CardHeader>
                                 <CardTitle>Gastos Recientes</CardTitle>
                                 <CardDescription>
-                                    {event.gastos ? event.gastos.length : 0} gastos totalizando ${totalExpenses.toFixed(2)}
+                                    {event.gastos ? event.gastos.length : 0}&nbsp;gastos totalizando&nbsp;${totalExpenses.toFixed(2)}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                {event.gastos && event.gastos.length === 0 ? (
-                                    <p className="text-sm text-muted-foreground">No hay gasto registrado</p>
-                                ) : (
-                                    <div className="space-y-2">
-                                        {event.gastos && event.gastos.slice(0, 3).map((gasto) => (
-                                            <div key={gasto.id} className="flex justify-between items-center">
-                                                <div>
-                                                    <div className="font-medium text-sm">{gasto.descripcion}</div>
-                                                    <div className="text-xs text-muted-foreground">Contratado por {gasto.responsable}</div>
-                                                </div>
-                                                <div className="font-medium">${gasto.monto.toFixed(2)}</div>
-                                            </div>
-                                        ))}
-                                        {event.gastos && event.gastos.length > 3 && (
-                                            <Button variant="link" className="p-0 h-auto" onClick={() => setActiveTab("expenses")}>
-                                                View all expenses
-                                            </Button>
-                                        )}
-                                    </div>
-                                )}
+                                {
+                                    event.gastos && event.gastos.length === 0 ? (
+                                        <p className="text-sm text-muted-foreground">No hay gasto registrado</p>
+                                    ) : (
+                                        <div className="space-y-2">
+                                            {
+                                                event.gastos && event.gastos.slice(0, 3).map((gasto) => (
+                                                    <div key={gasto.id} className="flex justify-between items-center">
+                                                        <div>
+                                                            <div className="font-medium text-sm">{gasto.descripcion}</div>
+                                                            <div className="text-xs text-muted-foreground">Contratado por {gasto.responsable}</div>
+                                                        </div>
+                                                        <div className="font-medium">${gasto.monto.toFixed(2)}</div>
+                                                    </div>
+                                                ))
+                                            }
+                                            {
+                                                event.gastos && event.gastos.length > 3 && (
+                                                    <Button variant="link" className="p-0 h-auto" onClick={() => setActiveTab("expenses")}>
+                                                        Ver todos los Gastos
+                                                    </Button>
+                                                )
+                                            }
+                                        </div>
+                                    )
+                                }
                             </CardContent>
                         </Card>
                     </div>
@@ -301,10 +349,10 @@ export default function EventDetail() {
                 <TabsContent value="tasks">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Tareas</CardTitle>
+                            <CardTitle>Tareas y</CardTitle>
                             <CardDescription>
-                                {event.tareas ? event.tareas.filter((t) => t.completado).length : 0} de
-                                {event.tareas ? event.tareas.length : 0} completados
+                                {event.tareas ? event.tareas.filter((t) => t.completado).length : 0}&nbsp;de&nbsp;
+                                {event.tareas ? event.tareas.length : 0}&nbsp;completadas
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
@@ -327,7 +375,7 @@ export default function EventDetail() {
                                 <div className="space-y-2">
                                     {
                                         event.tareas && event.tareas.length === 0 ? (
-                                            <p className="text-sm text-muted-foreground">No hay gasto registrado</p>
+                                            <p className="text-sm text-muted-foreground">No hay Tarea registrada</p>
                                         ) : (
                                             event.tareas && event.tareas.map((tarea) => (
                                                 <div key={tarea.id} className="flex items-center justify-between">
@@ -358,7 +406,7 @@ export default function EventDetail() {
                 </TabsContent>
                 <TabsContent value="expenses">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div className="lg:col-span-2">
+                        <div className="lg:col-span-2 overflow-y-auto max-h-[700px]">
                             <Card>
                                 <CardHeader>
                                     <CardTitle>Gastos</CardTitle>
@@ -397,7 +445,6 @@ export default function EventDetail() {
                                 </CardContent>
                             </Card>
                         </div>
-
                         <div>
                             <Card>
                                 <CardHeader>

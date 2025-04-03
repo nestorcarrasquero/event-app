@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({
             data: body,
             message: 'Type Event added successfully',
-            status: 201
+            status: 200
         })
     } catch (error) {   
         return NextResponse.json({

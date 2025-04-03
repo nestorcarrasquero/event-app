@@ -36,7 +36,7 @@ model Gasto {
   responsable String
   eventId     Int      
   event       Event    @relation(fields: [eventId], references: [id])
-  categoryId  Int      @unique
+  categoryId  Int      
   category    Category @relation(fields: [categoryId], references: [id])
 }
 
@@ -45,7 +45,7 @@ model Tarea {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   nombre     String
-  completado Boolean
+  completado Boolean  @default(false)
   eventId    Int      
   event      Event    @relation(fields: [eventId], references: [id])
 }

@@ -11,15 +11,14 @@ export async function POST(req: NextRequest) {
     try {
         await prisma.tarea.create({
             data: {
-                nombre: body.nombre,
-                completado: body.completado,
-                eventId: body.eventId,
+                nombre: body.nombre,                
+                eventId: Number(body.eventId),
             }
         })
         return NextResponse.json({
             data: body,
-            message: 'Task added successfully',
-            status: 201
+            message: 'Tarea agregada satisfactoriamente',
+            status: 200
         })
     } catch (error) {
         return NextResponse.json({
