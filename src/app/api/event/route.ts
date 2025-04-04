@@ -2,15 +2,24 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/utils/prisma";
 
 export async function GET() {
-    const events = await prisma.event.findMany({
-        include: {
-            typeEvent: true,
-            tareas: true,
-            gastos: true,
-            staff: true,
-        }
-    });
-    return NextResponse.json(events);
+    try {
+        const events = await prisma.event.findMany({
+            include: {
+                typeEvent: true,
+                tareas: true,
+                gastos: true,
+                staff: true,
+            }
+        });
+        return NextResponse.json(events);
+    } catch (error) {
+        return NextResponse.json({
+            data: null,
+            message: `Some problem ${error}`,
+            status: 500
+        })
+    }
+    
 }
 
 export async function POST(req: NextRequest) {

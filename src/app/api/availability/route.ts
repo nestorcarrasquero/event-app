@@ -2,6 +2,14 @@ import { prisma } from "@/app/utils/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
-    const availability = await prisma.availability.findMany();
-    return NextResponse.json(availability);
+    try {
+        const availability = await prisma.availability.findMany();
+        return NextResponse.json(availability);
+    } catch (error) {
+        return NextResponse.json({
+            data: null,
+            message: `Some problem ${error}`,
+            status: 500
+        })
+    }
 }

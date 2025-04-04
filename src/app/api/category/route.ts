@@ -2,6 +2,14 @@ import { prisma } from "@/app/utils/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
-    const categories = await prisma.category.findMany();
-    return NextResponse.json(categories);
+    try {
+        const categories = await prisma.category.findMany();
+        return NextResponse.json(categories);
+    } catch (error) {
+        return NextResponse.json({
+            data: null,
+            message: `Some problem ${error}`,
+            status: 500
+        })
+    }
 }

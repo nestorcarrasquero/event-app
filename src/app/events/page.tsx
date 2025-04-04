@@ -56,9 +56,13 @@ export default function EventsPage() {
 
     useEffect(() => {
         async function fetchEvents() {
-            const res = await fetch('/api/event')
-            const result = await res.json()
-            setEvents(result)
+            try {
+                const res = await fetch('/api/event')
+                const result = await res.json()
+                setEvents(result)
+            } catch (error) {
+                return error
+            }
         }
         fetchEvents()        
     }, [])

@@ -43,7 +43,16 @@ export default function StaffPage() {
     const [staff, setStaff] = useState<IStaff[]>([])
 
     useEffect(() => {
-        setStaff(initialStaff)
+        async function fetchStaff() {
+            try {
+                const res = await fetch('/api/staff')
+                const result = await res.json()
+                setStaff(result)
+            } catch (error) {
+                return error
+            }
+        }
+        fetchStaff()        
     }, [])
 
     return (

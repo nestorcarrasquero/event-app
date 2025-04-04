@@ -19,51 +19,6 @@ interface TypeProps {
     description: string
 }
 
-/*const initialEvents: Event[] = [
-    {
-        id: "1",
-        titulo: "Evento uno",
-        fechaEvento: new Date("2021-10-10"),
-        fechaContrato: new Date("2021-10-01"),
-        organizador: "Organizador uno",
-        direccion: "Dirección uno",
-        cliente: "Cliente uno",
-        email: "evento@direccion.com",
-        telefono: "1234567890",
-        tareas: [
-            { id: "t1", nombre: "Book accommodation", completado: true },
-            { id: "t2", nombre: "Arrange transportation", completado: false },
-            { id: "t3", nombre: "Plan activities", completado: false },
-        ],
-        gastos: [
-            { id: "e1", categoria: "Alquiler", descripcion: "Alquiler de salón", fecha: new Date(), monto: 2000, responsable: "Pedro Perez" },
-            { id: "e2", categoria: "Reserva", descripcion: "Reserva de hotel", fecha: new Date(), monto: 2524, responsable: "Maria Lopez" },
-        ],
-        staff: ["1"],
-    },
-    {
-        id: "2",
-        titulo: "Evento dos",
-        fechaEvento: new Date("2021-10-10"),
-        fechaContrato: new Date("2021-10-01"),
-        organizador: "Organizador dos",
-        direccion: "Dirección dos",
-        cliente: "Cliente dos",
-        email: "evento@direccion.com",
-        telefono: "1234567890",
-        tareas: [
-            { id: "t1", nombre: "Prepare presentation", completado: true },
-            { id: "t2", nombre: "Send invitations", completado: true },
-            { id: "t3", nombre: "Set up demo stations", completado: false },
-        ],
-        gastos: [
-            { id: "e1", categoria: "Marketing", descripcion: "Marketing de materiales", fecha: new Date(), monto: 560, responsable: "Luis Rodriguez" },
-            { id: "e2", categoria: "Publicidad", descripcion: "Publicidad de evento", fecha: new Date(), monto: 3434, responsable: "Adriana Ramirez" },
-        ],
-        staff: ["2"],
-    },
-]*/
-
 export default function EventDetail() {
     const params = useParams<{ id: string }>();
     const router = useRouter()
@@ -307,7 +262,7 @@ export default function EventDetail() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Card>
                             <CardHeader>
-                                <CardTitle>Tareas x</CardTitle>
+                                <CardTitle>Tareas</CardTitle>
                                 <CardDescription>
                                     {event.tareas ? event.tareas.filter((t) => t.completado).length : 0}&nbsp;de&nbsp;
                                     {event.tareas ? event.tareas.length : 0}&nbsp;completados
@@ -384,7 +339,7 @@ export default function EventDetail() {
                 <TabsContent value="tasks">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Tareas y</CardTitle>
+                            <CardTitle>Tareas</CardTitle>
                             <CardDescription>
                                 {event.tareas ? event.tareas.filter((t) => t.completado).length : 0}&nbsp;de&nbsp;
                                 {event.tareas ? event.tareas.length : 0}&nbsp;completadas

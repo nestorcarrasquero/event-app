@@ -2,8 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/utils/prisma";
 
 export async function GET() {
-    const tarea = await prisma.gasto.findMany();
-    return NextResponse.json(tarea);
+    try {
+        const tarea = await prisma.gasto.findMany();
+        return NextResponse.json(tarea);
+    } catch (error) {
+        return NextResponse.json({
+            data: null,
+            message: `Some problem ${error}`,
+            status: 500
+        })
+    }    
 }
 
 export async function POST(req: NextRequest) {

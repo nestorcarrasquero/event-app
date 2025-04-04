@@ -12,11 +12,16 @@ import { cn } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Check, ChevronsUpDown } from "lucide-react"
 import Link from "next/link"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { isValidPhoneNumber } from "react-phone-number-input"
 import { toast } from "sonner"
 import { z } from "zod"
+
+interface TypeProps {
+    id: string,
+    description: string
+}
 
 const FormSchema = z.object({
     nombre: z.string().min(2, {
@@ -30,8 +35,8 @@ const FormSchema = z.object({
     telefono: z
         .string()
         .refine(isValidPhoneNumber, { message: "Invalid phone number" }),
-    rol: z.string().min(2, {
-        message: "El nombre debe tener al menos 2 caracteres"
+    roleId: z.string({
+        required_error: "El rol es requerido",
     }),
     skills: z.array(z.string()).refine((value) => value.some((item) => item), {
         message: "Debe seleccionar al menos un skill",
@@ -42,7 +47,7 @@ const FormSchema = z.object({
     }),
 })
 
-const days = [
+/*const days = [
     {
         id: "lunes",
         label: "Lunes",
@@ -71,9 +76,9 @@ const days = [
         id: "domingo",
         label: "Domingo",
     },
-] as const
+] as const*/
 
-const staffRoles = [
+/*const staffRoles = [
     "Event Coordinator",
     "Technical Support",
     "Logistics Manager",
@@ -84,10 +89,10 @@ const staffRoles = [
     "AV Technician",
     "Transportation Coordinator",
     "Cleaning Staff",
-]
+]*/
 
 // Common staff skills
-const commonSkills = [
+/*const commonSkills = [
     "Setup",
     "Coordination",
     "Customer Service",
@@ -103,17 +108,72 @@ const commonSkills = [
     "Registration",
     "Cleaning",
     "Photography",
-]
+]*/
 
 export default function StaffForm() {
     const [dynamicHeight, setDynamicHeight] = useState(0)
+    const [commonSkills, setCommonSkills] = useState<TypeProps[]>([])
+    const [staffRoles, setStaffRoles] = useState([])
+    const [days, setDays] = useState([])
+
+    useEffect(() => {
+        async function fetchSkills() {
+            try {
+                const res = await fetch('/api/skill')
+                const result = await res.json()
+                const data = await result.map((x: TypeProps) => {
+                    return {
+                        id: String(x.id),
+                        description: x.description
+                    }
+                })                
+                setCommonSkills(data)
+            } catch (error) {
+                return error
+            }
+        }
+        async function fetchStaff() {
+            try {
+                const res = await fetch('/api/role')
+                const result = await res.json()
+                const data = await result.map((x: TypeProps) => {
+                    return {
+                        id: String(x.id),
+                        description: x.description
+                    }
+                })
+                setStaffRoles(data)
+            } catch (error) {
+                return error
+            }
+        }
+        async function fetchDays() {
+            try {
+                const res = await fetch('/api/availability')
+                const result = await res.json()
+                const data = await result.map((x: {id: string, day: string}) => {
+                    return {
+                        id: String(x.id),
+                        day: x.day
+                    }
+                })
+                setDays(data)
+            } catch (error) {
+                return error
+            }
+        }
+        fetchSkills()
+        fetchStaff()
+        fetchDays()
+    },[])
+
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
             nombre: "",
             email: "",
             telefono: "",
-            rol: "",
+            roleId: "",
             skills: [],
             /*assignedEvents: [],*/
             availability: [],
@@ -130,7 +190,7 @@ export default function StaffForm() {
         })
     }
 
-    const handleSetValue = (val: string) => {
+    const handleSetValue = (val: string) => {        
         const currentSkills = form.getValues("skills");
         const value = [...currentSkills];
         if (currentSkills.includes(val)) {
@@ -194,7 +254,7 @@ export default function StaffForm() {
                             />
                             <FormField
                                 control={form.control}
-                                name="rol"
+                                name="roleId"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Rol</FormLabel>
@@ -205,8 +265,8 @@ export default function StaffForm() {
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent position="popper">
-                                                {staffRoles.map((role, index) => (
-                                                    <SelectItem value={role} key={index}>{role}</SelectItem>
+                                                {staffRoles.map((role: TypeProps) => (
+                                                    <SelectItem value={role.id} key={role.id}>{role.description}</SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
@@ -223,33 +283,33 @@ export default function StaffForm() {
                                             <FormLabel>Disponibilidad</FormLabel>
                                         </div>
                                         <div className="grid grid-cols-3 gap-4">
-                                            {days.map((day) => (
+                                            {days.map((item: {id: string, day: string}) => (
                                                 <FormField
-                                                    key={day.id}
+                                                    key={item.id}
                                                     control={form.control}
                                                     name="availability"
                                                     render={({ field }) => {
                                                         return (
                                                             <FormItem
-                                                                key={day.id}
+                                                                key={item.id}
                                                                 className="flex flex-row items-start space-x-3 space-y-0"
                                                             >
                                                                 <FormControl>
                                                                     <Checkbox
-                                                                        checked={field.value?.includes(day.id)}
+                                                                        checked={field.value?.includes(item.id)}
                                                                         onCheckedChange={(checked) => {
                                                                             return checked
-                                                                                ? field.onChange([...field.value, day.id])
+                                                                                ? field.onChange([...field.value, item.id])
                                                                                 : field.onChange(
                                                                                     field.value?.filter(
-                                                                                        (value) => value !== day.id
+                                                                                        (value) => value !== item.id
                                                                                     )
                                                                                 )
                                                                         }}
                                                                     />
                                                                 </FormControl>
                                                                 <FormLabel className="text-sm font-normal">
-                                                                    {day.label}
+                                                                    {item.day}
                                                                 </FormLabel>
                                                             </FormItem>
                                                         )
@@ -281,7 +341,7 @@ export default function StaffForm() {
                                                         <div className="grid grid-cols-3 gap-2 justify-start">
                                                             {form.getValues("skills")?.length ?
                                                                 form.getValues("skills").map((val, i) => (
-                                                                    <div key={i} className="px-2 py-1 rounded-xl border bg-slate-200 text-xs font-medium">{commonSkills.find((framework) => framework === val)}</div>
+                                                                    <div key={i} className="px-2 py-1 rounded-xl border bg-slate-200 text-xs font-medium">{commonSkills.find((sk: TypeProps) => sk.id === val)?.description}</div>
                                                                 ))
                                                                 : "Select skill..."}
                                                         </div>
@@ -298,19 +358,19 @@ export default function StaffForm() {
                                                     <CommandList>
                                                         <CommandEmpty>No skill found.</CommandEmpty>
                                                         <CommandGroup>
-                                                            {commonSkills.map((language) => (
+                                                            {commonSkills.map((language: TypeProps) => (
                                                                 <CommandItem
-                                                                    value={language}
-                                                                    key={language}
+                                                                    value={language.id}
+                                                                    key={language.id}
                                                                     onSelect={() => {
-                                                                        handleSetValue(language)
+                                                                        handleSetValue(language.id)
                                                                     }}
                                                                 >
-                                                                    {language}
+                                                                    {language.description}
                                                                     <Check
                                                                         className={cn(
                                                                             "mr-2 h-4 w-4",
-                                                                            form.getValues("skills").includes(language) ? "opacity-100" : "opacity-0"
+                                                                            form.getValues("skills").includes(language.id) ? "opacity-100" : "opacity-0"
                                                                         )} />
                                                                 </CommandItem>
                                                             ))}
