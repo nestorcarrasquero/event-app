@@ -133,10 +133,10 @@ export default function EventDetail() {
                 className: "text-lg font-bold"
             })
 
-            fetchEvent()            
+            fetchEvent()
         } catch (error) {
             return error
-        }        
+        }
     }
 
     const addTask = async () => {
@@ -166,19 +166,54 @@ export default function EventDetail() {
         } catch (error) {
             return error
         }
-
-        /*setEvent({
-            ...event,
-            tareas: [...event.tareas, { id: `t${Date.now()}`, nombre: newTask, completado: false }],
-        })*/
-
     }
 
-    const removeExpense = (expenseId: string) => {
-        setEvent({
-            ...event,
-            gastos: event.gastos.filter((gasto) => gasto.id !== expenseId),
-        })
+    const removeExpense = async (expenseId: string) => {
+        if (expenseId === "") return
+        const settings = {
+            method: 'DELETE',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+        }
+        try {
+            const fetchResponse = await fetch(`/api/gasto/${expenseId}`, settings)
+            const data = await fetchResponse.json()
+
+            toast("Mensaje de la aplicación", {
+                description: data.message,
+                className: "text-lg font-bold"
+            })
+
+            fetchEvent()
+        } catch (error) {
+            return error
+        }
+    }
+
+    const removeTask = async (taskId: string) => {
+        if (taskId === "") return
+        const settings = {
+            method: 'DELETE',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+        }
+        try {
+            const fetchResponse = await fetch(`/api/tarea/${taskId}`, settings)
+            const data = await fetchResponse.json()
+
+            toast("Mensaje de la aplicación", {
+                description: data.message,
+                className: "text-lg font-bold"
+            })
+
+            fetchEvent()
+        } catch (error) {
+            return error
+        }
     }
 
     const totalExpenses = event.gastos ? event.gastos.reduce((sum, gasto) => sum + gasto.monto, 0) : 0
@@ -392,7 +427,9 @@ export default function EventDetail() {
                                                             {tarea.nombre}
                                                         </label>
                                                     </div>
-                                                    <Button variant="ghost" size="icon" className="h-7 w-7">
+                                                    <Button variant="ghost" size="icon" className="h-7 w-7"
+                                                        onClick={() => removeTask(tarea.id)}
+                                                    >
                                                         <Trash2 className="h-4 w-4" />
                                                     </Button>
                                                 </div>

@@ -26,3 +26,25 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         })
     } 
 }
+
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+    const { id } = await params
+    try {
+        await prisma.tarea.delete({
+            where: {
+                id: Number(id)
+            }
+        })
+        return NextResponse.json({
+            data: null,
+            message: 'Tarea eliminada satisfactoriamente',
+            status: 200
+        })
+    } catch (error) {
+        return NextResponse.json({
+            data: null,
+            message: `Some problem ${error}`,
+            status: 500
+        })
+    }
+}
