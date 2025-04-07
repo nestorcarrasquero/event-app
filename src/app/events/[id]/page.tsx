@@ -1,23 +1,36 @@
 'use client'
+import { Spinner } from "@/app/components/Spinner";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Event } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarDays, ChevronLeft, DollarSign, MapPin, Plus, Trash2, Users } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { z } from "zod";
 
 interface TypeProps {
     id: string,
     description: string
 }
+
+const FormSchema = z.object({
+    descripcion: z.string().min(1, { message: "Se requiere la descripción" }),
+    categoryId: z.string().min(1, { message: "Categoría es obligatoria" }),
+    monto: z.string().min(1, { message: "Monto requerido" }),
+    responsable: z.string().min(1, { message: "Responsable es obligatorio" }),
+    eventId: z.string().min(1, { message: "Evento requerido" }),
+    fecha: z.date().min(new Date(), { message: "La fecha del gasto es requerida" }),
+})
 
 export default function EventDetail() {
     const params = useParams<{ id: string }>();
@@ -26,15 +39,20 @@ export default function EventDetail() {
     const [event, setEvent] = useState<Event | null>(null)
     const [newTask, setNewTask] = useState("")
     const [activeTab, setActiveTab] = useState("overview")
-    const [newGasto, setNewGasto] = useState({
-        descripcion: "",
-        categoryId: "",
-        monto: "",
-        responsable: "",
-        eventId: id,
-        fecha: new Date(),
-    })
     const [categories, setCategories] = useState([])
+    const [loading, setLoading] = useState(false)
+
+    const form = useForm<z.infer<typeof FormSchema>>({
+        resolver: zodResolver(FormSchema),
+        defaultValues: {
+            descripcion: "",
+            categoryId: "",
+            monto: "",
+            responsable: "",
+            eventId: id,
+            fecha: new Date(),
+        },
+    })
 
     const fetchEvent = useCallback(async () => {
         const res = await fetch(`/api/event/${id}`)
@@ -69,6 +87,7 @@ export default function EventDetail() {
 
     const toggleTaskCompletion = async (taskId: string) => {
         if (taskId === "") return
+        setLoading(true)
         const settings = {
             method: 'PUT',
             headers: {
@@ -91,11 +110,14 @@ export default function EventDetail() {
             fetchEvent()
         } catch (error) {
             return error
+        } finally {
+            setLoading(false)
         }
     }
 
     const addTask = async () => {
         if (newTask.trim() === "") return
+        setLoading(true)
         const settings = {
             method: 'POST',
             headers: {
@@ -120,11 +142,14 @@ export default function EventDetail() {
             setNewTask("")
         } catch (error) {
             return error
+        } finally {
+            setLoading(false)
         }
     }
 
     const removeExpense = async (expenseId: string) => {
         if (expenseId === "") return
+        setLoading(true)
         const settings = {
             method: 'DELETE',
             headers: {
@@ -144,11 +169,14 @@ export default function EventDetail() {
             fetchEvent()
         } catch (error) {
             return error
+        } finally {
+            setLoading(false)
         }
     }
 
     const removeTask = async (taskId: string) => {
         if (taskId === "") return
+        setLoading(true)
         const settings = {
             method: 'DELETE',
             headers: {
@@ -168,21 +196,22 @@ export default function EventDetail() {
             fetchEvent()
         } catch (error) {
             return error
+        } finally {
+            setLoading(false)
         }
     }
 
     const totalExpenses = event.gastos ? event.gastos.reduce((sum, gasto) => sum + gasto.monto, 0) : 0
 
-    async function onSubmit(event: FormEvent<HTMLFormElement>) {
-        event.preventDefault()
-
+    async function onSubmit(data: z.infer<typeof FormSchema>) {
+        setLoading(true)
         const settings = {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(newGasto),
+            body: JSON.stringify(data),
         }
         try {
             const fetchResponse = await fetch('/api/gasto', settings)
@@ -195,16 +224,11 @@ export default function EventDetail() {
 
             fetchEvent()
 
-            setNewGasto({
-                descripcion: "",
-                categoryId: "",
-                monto: "",
-                responsable: "",
-                eventId: id,
-                fecha: new Date(),
-            })
+            form.reset()
         } catch (error) {
             return error
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -216,6 +240,7 @@ export default function EventDetail() {
             <div className="mb-6">
                 <h1 className="text-3xl font-bold">{event.titulo}</h1>
             </div>
+            { loading ? <Spinner /> : null}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
                 <TabsList>
                     <TabsTrigger value="overview">Vista Preliminar</TabsTrigger>
@@ -431,10 +456,10 @@ export default function EventDetail() {
                                                         </Button>
                                                     </div>
                                                 </div>
-                                            ))}
+                                            ))}                        
                                         </div>
-                                    )}
-                                </CardContent>
+                                    )}                                    
+                                </CardContent>                                
                             </Card>
                         </div>
                         <div>
@@ -443,67 +468,89 @@ export default function EventDetail() {
                                     <CardTitle>Agregar Gasto</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <form className="space-y-4" onSubmit={onSubmit}>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="descripcion">Descripción</Label>
-                                            <Input
-                                                id="descripcion"
-                                                placeholder="Descripción del gasto"
-                                                value={newGasto.descripcion}
-                                                onChange={(e) => setNewGasto({ ...newGasto, descripcion: e.target.value })}
-                                                required
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="amount">Monto</Label>
-                                            <Input
-                                                id="monto"
-                                                type="number"
-                                                step="0.01"
-                                                min="0"
-                                                placeholder="0.00"
-                                                value={newGasto.monto}
-                                                onChange={(e) => setNewGasto({ ...newGasto, monto: e.target.value })}
-                                                required
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="categoryId">Categoría</Label>
-                                            <Select
-                                                value={newGasto.categoryId}
-                                                onValueChange={(value) => setNewGasto({ ...newGasto, categoryId: value })}
-                                            >
-                                                <SelectTrigger id="categoryId">
-                                                    <SelectValue placeholder="Seleccione una categoría de gastos" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {categories.map((category: TypeProps) => (
-                                                        <SelectItem key={category.id} value={category.id}>
-                                                            {category.description}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="responsable">Responsable</Label>
-                                            <Input
-                                                id="responsable"
-                                                placeholder="Responsable del gasto"
-                                                value={newGasto.responsable}
-                                                onChange={(e) => setNewGasto({ ...newGasto, responsable: e.target.value })}
-                                                required
-                                            />
-                                        </div>
-                                        <Button type="submit" className="w-full">
-                                            Enviar
-                                        </Button>
-                                    </form>
+                                    <Form {...form}>
+                                        <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+                                            <div className="space-y-6">
+                                                <FormField
+                                                    control={form.control}
+                                                    name="descripcion"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Titulo</FormLabel>
+                                                            <FormControl>
+                                                                <Input placeholder="Descripción del gasto" {...field} />
+                                                            </FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormField
+                                                    control={form.control}
+                                                    name="monto"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Monto</FormLabel>
+                                                            <FormControl>
+                                                                <Input placeholder="0.00" {...field}
+                                                                    type="number"
+                                                                    step={0.01}
+                                                                    min={0}
+                                                                />
+                                                            </FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormField
+                                                    control={form.control}
+                                                    name="categoryId"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Categoría</FormLabel>
+                                                            <Select onValueChange={field.onChange} defaultValue={field.value} key={`category-${field.value}`}>
+                                                                <FormControl>
+                                                                    <SelectTrigger>
+                                                                        <SelectValue placeholder="Seleccione una categoría de gastos" />
+                                                                    </SelectTrigger>
+                                                                </FormControl>
+                                                                <SelectContent position="popper">
+                                                                    {
+                                                                        categories.map((category: TypeProps) => (
+                                                                            <SelectItem value={category.id} key={category.id}>{category.description}</SelectItem>
+                                                                        ))
+                                                                    }
+                                                                </SelectContent>
+                                                            </Select>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormField
+                                                    control={form.control}
+                                                    name="responsable"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Responsable</FormLabel>
+                                                            <FormControl>
+                                                                <Input placeholder="Responsable del gasto" {...field} />
+                                                            </FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <CardFooter className="flex justify-between">
+                                                    <Button type="submit" className="w-full">
+                                                        Enviar
+                                                    </Button>
+                                                </CardFooter>
+                                            </div>
+                                        </form>
+                                    </Form>
                                 </CardContent>
                             </Card>
                         </div>
                     </div>
-                </TabsContent>
+                </TabsContent>                
             </Tabs>
         </div>
     )

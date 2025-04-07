@@ -5,6 +5,7 @@ import { ChevronLeft, Plus } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Staff from "../components/Staff";
+import { Spinner } from "../components/Spinner";
 
 export default function StaffPage() {
     const [staff, setStaff] = useState<IStaff[]>([])
@@ -39,6 +40,7 @@ export default function StaffPage() {
             {
                 staff.length === 0 ? (
                     <div className="text-center py-12">
+                        <Spinner />
                         <p className="text-muted-foreground mb-4">No hay personal registrado</p>
                         <Link href="/events/new">
                             <Button className="gap-2">Incluir</Button>

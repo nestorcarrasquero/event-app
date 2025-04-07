@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import Events from "../components/Events";
 import { Event } from "@/lib/types";
+import { Spinner } from "../components/Spinner";
 
 export default function EventsPage() {
     const [events, setEvents] = useState<Event[]>([])
@@ -39,6 +40,7 @@ export default function EventsPage() {
             {
                 events.length === 0 ? (
                     <div className="text-center py-12">
+                        <Spinner />
                         <p className="text-muted-foreground mb-4">No hay evento registrado</p>
                         <Link href="/events/new">
                             <Button className="gap-2">Crear Evento</Button>

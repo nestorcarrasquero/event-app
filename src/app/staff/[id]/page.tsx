@@ -1,4 +1,5 @@
 'use client'
+import { Spinner } from "@/app/components/Spinner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +19,7 @@ export default function StaffDetail() {
     const [events, setEvents] = useState<Event[]>([])
     const [assignedEvents, setAssignedEvents] = useState<Event[]>([])
     const [unassignedEvents, setUnassignedEvents] = useState<Event[]>([])
+    const [loading, setLoading] = useState(false)
 
     const fetchStaff = useCallback(async () => {
         try {
@@ -57,6 +59,7 @@ export default function StaffDetail() {
 
     const assignToEvent = async (eventId: string, assign: string) => {
         if (eventId == "") return
+        setLoading(true)
         const settings = {
             method: 'PUT',
             headers: {
@@ -81,7 +84,9 @@ export default function StaffDetail() {
             fetchEvents()
         } catch (error) {
             return error
-        }        
+        }  finally {
+            setLoading(false)
+        }     
     }   
 
     return (
@@ -89,6 +94,7 @@ export default function StaffDetail() {
             <Link href="/staff" className="inline-flex items-center gap-1 mb-6 text-muted-foreground">
                 <ChevronLeft className="h-4 w-4" />Regresa a Lista de Staff
             </Link>
+            { loading ? <Spinner /> : null}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2">
                     <Card>

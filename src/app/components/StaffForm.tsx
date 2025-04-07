@@ -17,6 +17,7 @@ import { useForm } from "react-hook-form"
 import { isValidPhoneNumber } from "react-phone-number-input"
 import { toast } from "sonner"
 import { z } from "zod"
+import { Spinner } from "./Spinner"
 
 interface TypeProps {
     id: string,
@@ -52,6 +53,7 @@ export default function StaffForm() {
     const [commonSkills, setCommonSkills] = useState<TypeProps[]>([])
     const [staffRoles, setStaffRoles] = useState([])
     const [days, setDays] = useState([])
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
         async function fetchSkills() {
@@ -118,6 +120,7 @@ export default function StaffForm() {
     })
 
     async function onSubmit(data: z.infer<typeof FormSchema>) {
+        setLoading(true)
         const settings = {
             method: 'POST',
             headers: {
@@ -135,6 +138,8 @@ export default function StaffForm() {
             form.reset()
         } catch (error) {
             return error
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -337,7 +342,7 @@ export default function StaffForm() {
                                 <Link href="/staff">
                                     <Button variant="outline">Cancelar</Button>
                                 </Link>
-                                <Button>Enviar</Button>
+                                <Button>{!loading ? "Enviar" : <Spinner className="text-gray-200" />}</Button>
                             </CardFooter>
                         </div>
                     </CardContent>

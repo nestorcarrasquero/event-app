@@ -35,6 +35,7 @@ import { isValidPhoneNumber } from "react-phone-number-input";
 import { PhoneInput } from "@/components/ui/phone-input"
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import { Spinner } from "./Spinner"
 
 interface TypeProps {
     id: string,
@@ -76,6 +77,7 @@ const FormSchema = z.object({
 
 export default function EventCard() {
     const [typeEvent, setTypeEvent] = useState([])
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
         async function fetchTypeEvent() {
@@ -108,6 +110,7 @@ export default function EventCard() {
     })
 
     async function onSubmit(data: z.infer<typeof FormSchema>) {
+        setLoading(true)
         const settings = {
             method: 'POST',
             headers: {
@@ -125,6 +128,8 @@ export default function EventCard() {
             form.reset()
         } catch (error) {
             return error
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -326,7 +331,7 @@ export default function EventCard() {
                                 <Link href="/events">
                                     <Button variant="outline">Cancelar</Button>
                                 </Link>
-                                <Button>Enviar</Button>
+                                <Button>{!loading ? "Enviar" : <Spinner className="text-gray-200" />}</Button>
                             </CardFooter>
                         </div>
                     </CardContent>
