@@ -3,12 +3,16 @@ import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
     const { id } = await params
-    const event = await prisma.event.findFirst({
+    const event = await prisma.event.findUnique({
         where: {
             id: Number(id)
         },
         include: {
-            gastos: true,
+            gastos: {
+                include: {
+                    category: true
+                }
+            },
             typeEvent: true,
             staff: true,
             tareas: true,

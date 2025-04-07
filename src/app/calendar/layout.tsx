@@ -6,7 +6,7 @@ export default function CalendarLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <section className="flex justify-center h-screen bg-gray-100">
+        <section className="flex justify-center bg-gray-100">
             {children}
             <Toaster />
         </section>

@@ -6,51 +6,6 @@ import { useEffect, useState } from "react";
 import Events from "../components/Events";
 import { Event } from "@/lib/types";
 
-/*const initialEvents: Event[] = [
-    {
-        id: "1",
-        titulo: "Evento uno",
-        fechaEvento: new Date("2021-10-10"),
-        fechaContrato: new Date("2021-10-01"),
-        organizador: "Organizador uno",
-        direccion: "Dirección uno",
-        cliente: "Cliente uno",
-        email: "evento@direccion.com",
-        telefono: "1234567890",
-        tareas: [
-            { id: "t1", nombre: "Book accommodation", completado: true },
-            { id: "t2", nombre: "Arrange transportation", completado: false },
-            { id: "t3", nombre: "Plan activities", completado: false },
-        ],
-        gastos: [
-            { id: "e1", categoria: "Alquiler", descripcion: "Alquiler de salón", fecha: new Date("2021-10-10"), monto: 2000, responsable: "Pedro Perez" },
-            { id: "e2", categoria: "Reserva", descripcion: "Reserva de hotel", fecha: new Date("2021-10-10"), monto: 2524, responsable: "Maria Lopez" },
-        ],
-        staff: ["1"],
-    },
-    {
-        id: "2",
-        titulo: "Evento dos",
-        fechaEvento: new Date("2021-10-10"),
-        fechaContrato: new Date("2021-10-01"),
-        organizador: "Organizador dos",
-        direccion: "Dirección dos",
-        cliente: "Cliente dos",
-        email: "evento@direccion.com",
-        telefono: "1234567890",
-        tareas: [
-            { id: "t1", nombre: "Prepare presentation", completado: true },
-            { id: "t2", nombre: "Send invitations", completado: true },
-            { id: "t3", nombre: "Set up demo stations", completado: false },
-        ],
-        gastos: [
-            { id: "e1", categoria: "Marketing", descripcion: "Marketing de materiales", fecha: new Date("2021-10-10"), monto: 560, responsable: "Luis Rodriguez" },
-            { id: "e2", categoria: "Publicidad", descripcion: "Publicidad de evento", fecha: new Date("2021-10-10"), monto: 3434, responsable: "Adriana Ramirez" },
-        ],
-        staff: ["2"]
-    },
-]*/
-
 export default function EventsPage() {
     const [events, setEvents] = useState<Event[]>([])
 

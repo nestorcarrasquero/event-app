@@ -47,69 +47,6 @@ const FormSchema = z.object({
     }),
 })
 
-/*const days = [
-    {
-        id: "lunes",
-        label: "Lunes",
-    },
-    {
-        id: "martes",
-        label: "Martes",
-    },
-    {
-        id: "miercoles",
-        label: "Miercoles",
-    },
-    {
-        id: "jueves",
-        label: "Jueves",
-    },
-    {
-        id: "viernes",
-        label: "Viernes",
-    },
-    {
-        id: "sabado",
-        label: "Sabado",
-    },
-    {
-        id: "domingo",
-        label: "Domingo",
-    },
-] as const*/
-
-/*const staffRoles = [
-    "Event Coordinator",
-    "Technical Support",
-    "Logistics Manager",
-    "Security Personnel",
-    "Catering Staff",
-    "Registration Assistant",
-    "Venue Manager",
-    "AV Technician",
-    "Transportation Coordinator",
-    "Cleaning Staff",
-]*/
-
-// Common staff skills
-/*const commonSkills = [
-    "Setup",
-    "Coordination",
-    "Customer Service",
-    "AV Equipment",
-    "Lighting",
-    "Sound Systems",
-    "Inventory",
-    "Transportation",
-    "Vendor Management",
-    "Security",
-    "First Aid",
-    "Food Service",
-    "Registration",
-    "Cleaning",
-    "Photography",
-]*/
-
 export default function StaffForm() {
     const [dynamicHeight, setDynamicHeight] = useState(0)
     const [commonSkills, setCommonSkills] = useState<TypeProps[]>([])
@@ -126,7 +63,7 @@ export default function StaffForm() {
                         id: String(x.id),
                         description: x.description
                     }
-                })                
+                })
                 setCommonSkills(data)
             } catch (error) {
                 return error
@@ -151,7 +88,7 @@ export default function StaffForm() {
             try {
                 const res = await fetch('/api/availability')
                 const result = await res.json()
-                const data = await result.map((x: {id: string, day: string}) => {
+                const data = await result.map((x: { id: string, day: string }) => {
                     return {
                         id: String(x.id),
                         day: x.day
@@ -165,7 +102,7 @@ export default function StaffForm() {
         fetchSkills()
         fetchStaff()
         fetchDays()
-    },[])
+    }, [])
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
@@ -180,17 +117,28 @@ export default function StaffForm() {
         },
     })
 
-    function onSubmit(data: z.infer<typeof FormSchema>) {
-        toast("You submitted the following values:", {
-            description: (
-                <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                    <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-                </pre>
-            )
-        })
+    async function onSubmit(data: z.infer<typeof FormSchema>) {
+        const settings = {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        };
+        try {
+            const fetchResponse = await fetch('/api/staff', settings)
+            const data = await fetchResponse.json()
+            toast("Mensaje de la aplicación", {
+                description: data.message
+            })
+            form.reset()
+        } catch (error) {
+            return error
+        }
     }
 
-    const handleSetValue = (val: string) => {        
+    const handleSetValue = (val: string) => {
         const currentSkills = form.getValues("skills");
         const value = [...currentSkills];
         if (currentSkills.includes(val)) {
@@ -199,13 +147,13 @@ export default function StaffForm() {
         } else {
             form.setValue("skills", [...value, val]);
         }
-        const height = Math.max(5, 5 + (currentSkills.length * 20))  
+        const height = Math.max(5, 5 + (currentSkills.length * 20))
         setDynamicHeight(height)
     }
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="w-[500px] shadow-2xl max-h-[700px] overflow-y-auto mx-auto">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="w-[500px] shadow-2xl mx-auto">
                 <Card>
                     <CardHeader>
                         <CardTitle>Registrar Staff</CardTitle>
@@ -258,16 +206,18 @@ export default function StaffForm() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Rol</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value} key={`role-${field.value}`}>
                                             <FormControl>
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="Seleccione el rol" />
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent position="popper">
-                                                {staffRoles.map((role: TypeProps) => (
-                                                    <SelectItem value={role.id} key={role.id}>{role.description}</SelectItem>
-                                                ))}
+                                                {
+                                                    staffRoles.map((role: TypeProps) => (
+                                                        <SelectItem value={role.id} key={role.id}>{role.description}</SelectItem>
+                                                    ))
+                                                }
                                             </SelectContent>
                                         </Select>
                                         <FormMessage />
@@ -283,7 +233,7 @@ export default function StaffForm() {
                                             <FormLabel>Disponibilidad</FormLabel>
                                         </div>
                                         <div className="grid grid-cols-3 gap-4">
-                                            {days.map((item: {id: string, day: string}) => (
+                                            {days.map((item: { id: string, day: string }) => (
                                                 <FormField
                                                     key={item.id}
                                                     control={form.control}
@@ -329,7 +279,7 @@ export default function StaffForm() {
                                         <FormLabel>Skills</FormLabel>
                                         <Popover>
                                             <PopoverTrigger asChild>
-                                                <FormControl style={{minHeight: `${dynamicHeight}px`}}>
+                                                <FormControl style={{ minHeight: `${dynamicHeight}px` }}>
                                                     <Button
                                                         variant="outline"
                                                         role="combobox"

@@ -7,138 +7,82 @@ import { Event, IStaff } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
 import { Calendar, ChevronLeft, Mail, Phone } from "lucide-react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-
-const initialStaff: IStaff[] = [
-    {
-        id: "1",
-        nombre: "Alex Johnson",
-        email: "alex.johnson@example.com",
-        telefono: "555-123-4567",
-        rol: "Event Coordinator",
-        skills: ["Setup", "Coordination", "Customer Service"],
-        assignedEvents: ["1"],
-        availability: ["martes", "miercoles", "jueves", "viernes", "sabado", "domingo"],
-    },
-    {
-        id: "2",
-        nombre: "Morgan Smith",
-        email: "morgan.smith@example.com",
-        telefono: "555-987-6543",
-        rol: "Technical Support",
-        skills: ["AV Equipment", "Lighting", "Sound Systems"],
-        assignedEvents: ["2"],
-        availability: ["lunes", "martes", "miercoles", "jueves", "sabado"],
-    },
-    {
-        id: "3",
-        nombre: "Jamie Wilson",
-        email: "jamie.wilson@example.com",
-        telefono: "555-456-7890",
-        rol: "Logistics Manager",
-        skills: ["Inventory", "Transportation", "Vendor Management"],
-        assignedEvents: ["1", "2"],
-        availability: ["lunes", "martes", "miercoles", "jueves", "viernes", "domingo"],
-    },
-]
-
-const initialEvents: Event[] = [
-    {
-        id: "1",
-        titulo: "Evento uno",
-        fechaEvento: new Date("2021-10-10"),
-        fechaContrato: new Date("2021-10-01"),
-        organizador: "Organizador uno",
-        direccion: "Dirección uno",
-        cliente: "Cliente uno",
-        email: "evento@direccion.com",
-        telefono: "1234567890",
-        tareas: [
-            { id: "t1", nombre: "Book accommodation", completado: true },
-            { id: "t2", nombre: "Arrange transportation", completado: false },
-            { id: "t3", nombre: "Plan activities", completado: false },
-        ],
-        gastos: [
-            { id: "e1", categoria: "Alquiler", descripcion: "Alquiler de salón", fecha: new Date(), monto: 2000, responsable: "Pedro Perez" },
-            { id: "e2", categoria: "Reserva", descripcion: "Reserva de hotel", fecha: new Date(), monto: 2524, responsable: "Maria Lopez" },
-        ],
-        staff: ["1"],
-    },
-    {
-        id: "2",
-        titulo: "Evento dos",
-        fechaEvento: new Date("2021-10-10"),
-        fechaContrato: new Date("2021-10-01"),
-        organizador: "Organizador dos",
-        direccion: "Dirección dos",
-        cliente: "Cliente dos",
-        email: "evento@direccion.com",
-        telefono: "1234567890",
-        tareas: [
-            { id: "t1", nombre: "Prepare presentation", completado: true },
-            { id: "t2", nombre: "Send invitations", completado: true },
-            { id: "t3", nombre: "Set up demo stations", completado: false },
-        ],
-        gastos: [
-            { id: "e1", categoria: "Marketing", descripcion: "Marketing de materiales", fecha: new Date(), monto: 560, responsable: "Luis Rodriguez" },
-            { id: "e2", categoria: "Publicidad", descripcion: "Publicidad de evento", fecha: new Date(), monto: 3434, responsable: "Adriana Ramirez" },
-        ],
-        staff: ["2"],
-    },
-]
+import { useParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function StaffDetail() {
-    const params = useParams();
-    const router = useRouter()
+    const params = useParams<{ id: string }>();
+    const { id } = params
     const [staff, setStaff] = useState<IStaff>()
+    const [events, setEvents] = useState<Event[]>([])
     const [assignedEvents, setAssignedEvents] = useState<Event[]>([])
     const [unassignedEvents, setUnassignedEvents] = useState<Event[]>([])
 
-    useEffect(() => {
-        const foundStaff = initialStaff.find((s) => s.id === params.id)
-        if (foundStaff) {
-            setStaff(foundStaff)
-            setAssignedEvents(initialEvents.filter((e) => foundStaff.assignedEvents.includes(e.id)))
-            setUnassignedEvents(initialEvents.filter((e) => !foundStaff.assignedEvents.includes(e.id)))
-        } else {
-            router.push("/staff")
+    const fetchStaff = useCallback(async () => {
+        try {
+            const response = await fetch(`/api/staff/${id}`)
+            const data = await response.json()
+            setStaff(data)
+        } catch (error) {
+            return error
+        }            
+    }, [id])
+
+    const fetchEvents = useCallback(async () => {
+        try {
+            const res = await fetch('/api/event')
+            const result = await res.json()
+            setEvents(result)
+        } catch (error) {
+            return error
         }
-    }, [params.id, router])
+    }, [])
+
+    useEffect(() => {
+        fetchStaff()
+        fetchEvents()        
+    }, [fetchStaff, fetchEvents])
+
+    useEffect(() => {
+        if (staff) {
+            setAssignedEvents(staff.events)
+            setUnassignedEvents(events.filter((e) => !staff.events.map((s) => s.id).includes(e.id)))
+        } 
+    }, [staff, events])
 
     if (!staff) {
         return <div className="container mx-auto px-4 py-8">Loading...</div>
-    }
+    } 
 
-    const assignToEvent = (eventId: string) => {
-        // In a real app, this would be an API call
-        const updatedStaffMember = {
-            ...staff,
-            assignedEvents: [...staff.assignedEvents, eventId],
+    const assignToEvent = async (eventId: string, assign: string) => {
+        if (eventId == "") return
+        const settings = {
+            method: 'PUT',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                assign: assign,
+                eventId: eventId,
+            }),
         }
+        try {
+            const fetchResponse = await fetch(`/api/staff/${id}`, settings)
+            const data = await fetchResponse.json()
 
-        setStaff(updatedStaffMember)
+            toast("Mensaje de la aplicación", {
+                description: data.message,
+                className: "text-lg font-bold"
+            })
 
-        // Update the assigned and unassigned events lists
-        const eventToAssign = unassignedEvents.find((e) => e.id === eventId) as Event
-        setAssignedEvents([...assignedEvents, eventToAssign])
-        setUnassignedEvents(unassignedEvents.filter((e) => e.id !== eventId))
-    }
-
-    const removeFromEvent = (eventId: string) => {
-        // In a real app, this would be an API call
-        const updatedStaffMember = {
-            ...staff,
-            assignedEvents: staff.assignedEvents.filter((id) => id !== eventId),
-        }
-
-        setStaff(updatedStaffMember)
-
-        // Update the assigned and unassigned events lists
-        const eventToUnassign = assignedEvents.find((e) => e.id === eventId) as Event
-        setUnassignedEvents([...unassignedEvents, eventToUnassign])
-        setAssignedEvents(assignedEvents.filter((e) => e.id !== eventId))
-    }
+            fetchStaff()
+            fetchEvents()
+        } catch (error) {
+            return error
+        }        
+    }   
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -151,7 +95,7 @@ export default function StaffDetail() {
                         <CardHeader>
                             <div>
                                 <CardTitle>{staff.nombre}</CardTitle>
-                                <CardDescription>{staff.rol}</CardDescription>
+                                <CardDescription>{staff.role.description}</CardDescription>
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-6">
@@ -176,7 +120,7 @@ export default function StaffDetail() {
                                         <div>
                                             <div className="font-medium">Eventos Asignados</div>
                                             <div>
-                                                {staff.assignedEvents.length} evento{staff.assignedEvents.length !== 1 ? "s" : ""}
+                                                {staff.events.length} evento{staff.events.length !== 1 ? "s" : ""}
                                             </div>
                                         </div>
                                     </div>
@@ -186,7 +130,7 @@ export default function StaffDetail() {
                                     <div className="flex flex-wrap gap-1">
                                         {staff.skills.map((skill, index) => (
                                             <Badge key={index} variant="secondary">
-                                                {skill}
+                                                {skill.description}
                                             </Badge>
                                         ))}
                                     </div>
@@ -200,7 +144,7 @@ export default function StaffDetail() {
                                                     htmlFor={`view-${day}`}
                                                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                                 >
-                                                    {day.charAt(0).toUpperCase() + day.slice(1)}
+                                                    {day.day.charAt(0).toUpperCase() + day.day.slice(1)}
                                                 </label>
                                             </div>
                                         ))}
@@ -229,7 +173,7 @@ export default function StaffDetail() {
                                                     {formatDate(event.fechaEvento)} • {event.direccion}
                                                 </div>
                                             </div>
-                                            <Button variant="outline" size="sm" onClick={() => removeFromEvent(event.id)}>
+                                            <Button variant="outline" size="sm" onClick={() => assignToEvent(event.id, 'false')}>
                                                 Remover
                                             </Button>
                                         </div>
@@ -256,7 +200,7 @@ export default function StaffDetail() {
                                                 <div className="font-medium">{event.titulo}</div>
                                                 <div className="text-sm text-muted-foreground">{formatDate(event.fechaEvento)}</div>
                                             </div>
-                                            <Button variant="outline" size="sm" onClick={() => assignToEvent(event.id)}>
+                                            <Button variant="outline" size="sm" onClick={() => assignToEvent(event.id, 'true')}>
                                                 Asignar
                                             </Button>
                                         </div>

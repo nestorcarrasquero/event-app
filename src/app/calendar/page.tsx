@@ -9,94 +9,36 @@ import { CalendarIcon, ChevronLeft, ChevronRight, DollarSign, MapPin, Users } fr
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-const initialStaff: IStaff[] = [
-    {
-        id: "1",
-        nombre: "Alex Johnson",
-        email: "alex.johnson@example.com",
-        telefono: "555-123-4567",
-        rol: "Event Coordinator",
-        skills: ["Setup", "Coordination", "Customer Service"],
-        assignedEvents: ["1"],
-        availability: ["martes", "miercoles", "jueves", "viernes", "sabado", "domingo"],
-    },
-    {
-        id: "2",
-        nombre: "Morgan Smith",
-        email: "morgan.smith@example.com",
-        telefono: "555-987-6543",
-        rol: "Technical Support",
-        skills: ["AV Equipment", "Lighting", "Sound Systems"],
-        assignedEvents: ["2"],
-        availability: ["lunes", "martes", "miercoles", "jueves", "sabado"],
-    },
-    {
-        id: "3",
-        nombre: "Jamie Wilson",
-        email: "jamie.wilson@example.com",
-        telefono: "555-456-7890",
-        rol: "Logistics Manager",
-        skills: ["Inventory", "Transportation", "Vendor Management"],
-        assignedEvents: ["1", "2"],
-        availability: ["lunes", "martes", "miercoles", "jueves", "viernes", "domingo"],
-    },
-]
-
-const initialEvents: Event[] = [
-    {
-        id: "1",
-        titulo: "Evento uno",
-        fechaEvento: new Date("2025-03-10"),
-        fechaContrato: new Date("2025-03-10"),
-        organizador: "Organizador uno",
-        direccion: "Dirección uno",
-        cliente: "Cliente uno",
-        email: "evento@direccion.com",
-        telefono: "1234567890",
-        tareas: [
-            { id: "t1", nombre: "Book accommodation", completado: true },
-            { id: "t2", nombre: "Arrange transportation", completado: false },
-            { id: "t3", nombre: "Plan activities", completado: false },
-        ],
-        gastos: [
-            { id: "e1", categoria: "Alquiler", descripcion: "Alquiler de salón", fecha: new Date(), monto: 2000, responsable: "Pedro Perez" },
-            { id: "e2", categoria: "Reserva", descripcion: "Reserva de hotel", fecha: new Date(), monto: 2524, responsable: "Maria Lopez" },
-        ],
-        staff: ["1"],
-    },
-    {
-        id: "2",
-        titulo: "Evento dos",
-        fechaEvento: new Date("2025-03-15"),
-        fechaContrato: new Date("2025-03-15"),
-        organizador: "Organizador dos",
-        direccion: "Dirección dos",
-        cliente: "Cliente dos",
-        email: "evento@direccion.com",
-        telefono: "1234567890",
-        tareas: [
-            { id: "t1", nombre: "Prepare presentation", completado: true },
-            { id: "t2", nombre: "Send invitations", completado: true },
-            { id: "t3", nombre: "Set up demo stations", completado: false },
-        ],
-        gastos: [
-            { id: "e1", categoria: "Marketing", descripcion: "Marketing de materiales", fecha: new Date(), monto: 560, responsable: "Luis Rodriguez" },
-            { id: "e2", categoria: "Publicidad", descripcion: "Publicidad de evento", fecha: new Date(), monto: 3434, responsable: "Adriana Ramirez" },
-        ],
-        staff: ["2"],
-    },
-]
-
 export default function CalendarPage() {
     const [currentDate, setCurrentDate] = useState(new Date())
     const [events, setEvents] = useState<Event[]>([])
+    const [initialStaff, setInitialStaff] = useState<IStaff[]>([])
     const [selectedDate, setSelectedDate] = useState<Date | null>()
     const [selectedEvents, setSelectedEvents] = useState([])
     const [staffFilter, setStaffFilter] = useState("all")
 
     useEffect(() => {
         // In a real app, this would be an API call
-        setEvents(initialEvents)
+        async function fetchEvents() {
+            try {
+                const res = await fetch('/api/event')
+                const result = await res.json()
+                setEvents(result)
+            } catch (error) {
+                return error
+            }
+        }
+        async function fetchStaff() {
+            try {
+                const response = await fetch('/api/staff')
+                const data = await response.json()
+                setInitialStaff(data)
+            } catch (error) {
+                return error
+            }  
+        }
+        fetchEvents()
+        fetchStaff()
     }, [])
 
     const getDaysInMonth = (year: number, month: number) => {
@@ -125,12 +67,12 @@ export default function CalendarPage() {
 
         // Find events for this day
         const dayEvents = events.filter((event) => {
-            const eventDate = new Date(event.fechaEvento)
+            const eventDate = new Date(event.fechaEvento)            
             return (
                 eventDate.getDate() === day &&
                 eventDate.getMonth() === month &&
                 eventDate.getFullYear() === year &&
-                (staffFilter === "all" || event.staff.includes(staffFilter))
+                (staffFilter === "all" || event.staff.map((e) => e.id).includes(staffFilter))
             )
         })
 

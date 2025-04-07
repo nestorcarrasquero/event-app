@@ -6,39 +6,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import Staff from "../components/Staff";
 
-const initialStaff: IStaff[] = [
-    {
-        id: "1",
-        nombre: "Alex Johnson",
-        email: "alex.johnson@example.com",
-        telefono: "555-123-4567",
-        rol: "Event Coordinator",
-        skills: ["Setup", "Coordination", "Customer Service"],
-        assignedEvents: ["1"],
-        availability: ["martes","miercoles","jueves","viernes","sabado","domingo"],
-    },
-    {
-        id: "2",
-        nombre: "Morgan Smith",
-        email: "morgan.smith@example.com",
-        telefono: "555-987-6543",
-        rol: "Technical Support",
-        skills: ["AV Equipment", "Lighting", "Sound Systems"],
-        assignedEvents: ["2"],
-        availability: ["lunes","martes","miercoles","jueves","sabado"],
-    },
-    {
-        id: "3",
-        nombre: "Jamie Wilson",
-        email: "jamie.wilson@example.com",
-        telefono: "555-456-7890",
-        rol: "Logistics Manager",
-        skills: ["Inventory", "Transportation", "Vendor Management"],
-        assignedEvents: ["1", "2"],
-        availability: ["lunes","martes","miercoles","jueves","viernes","domingo"],
-    },
-]
-
 export default function StaffPage() {
     const [staff, setStaff] = useState<IStaff[]>([])
 

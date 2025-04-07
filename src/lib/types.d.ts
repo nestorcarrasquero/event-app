@@ -8,7 +8,7 @@ export interface Gasto {
     id: string;
     descripcion: string;
     monto: number;
-    categoria: string;
+    category: Category;
     fecha: Date;
     responsable: string;
 }
@@ -25,8 +25,8 @@ export interface Event {
     telefono: string;
     tareas: Tarea[];
     gastos: Gasto[];
-    staff: string[];
-    typeEvent: TypeEvent
+    staff: IStaff[];
+    typeEvent: TypeEvent;
 }
 
 export interface IStaff {
@@ -34,12 +34,33 @@ export interface IStaff {
     nombre: string;
     email: string;
     telefono: string;
-    rol: string;
-    skills: string[];
-    assignedEvents: string[];
-    availability: string[];
+    role: Role;
+    skills: Skill[];
+    events: Event[];
+    availability: Availability[];
 }
 
 export interface TypeEvent {
+    id: string;
+    description: string;
+}
+
+export interface Skill {
+    id: string;
+    description: string;
+}
+
+export interface Availability {
+    id: string;
+    day: string;
+}
+
+export interface Category {
+    id: string;
+    description: string;
+}
+
+export interface Role {
+    id: string;
     description: string;
 }

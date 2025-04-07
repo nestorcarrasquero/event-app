@@ -29,12 +29,12 @@ export async function POST(req: NextRequest) {
                 email: body.email,
                 nombre: body.nombre,
                 telefono: body.telefono,
-                availability: {
-                    connect: body.availability.map((id: number) => ({ id: id }))
+                availability: {                    
+                    connect: body.availability.map((id: number) => ({ id: Number(id) }))
                 },
-                roleId: body.roleId,
-                skills: {
-                    connect: body.skills.map((id: number) => ({ id: id }))
+                roleId: Number(body.roleId),
+                skills: {                    
+                    connect: body.skills.map((id: number) => ({ id: Number(id) }))
                 }
             },
             include: {
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
         })
         return NextResponse.json({
             data: body,
-            message: 'Staff added successfully',
+            message: 'Staff agregado satisfactoriamente',
             status: 200
         })
     } catch (error) {
@@ -53,36 +53,6 @@ export async function POST(req: NextRequest) {
             data: null,
             message: `Some problem ${error}`,
             status: 500
-        })
-    }
-}
-
-export async function PUT(req: NextRequest) {
-    const body = await req.json()
-    try {
-        await prisma.staff.update({
-            where: {
-                id: body.id,
-            },
-            data: {
-                events: {
-                    set: body.events.map((id: number) => ({ id: id }))
-                }
-            },
-            include: {
-                events: true,
-            }
-        })
-        return NextResponse.json({
-            data: body,
-            message: 'Staff updated successfully',
-            status: 201
-        })
-    } catch (error) {
-        return NextResponse.json({
-            data: null,
-            message: `Some problem ${error}`,
-            status: 204
         })
     }
 }

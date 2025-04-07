@@ -416,7 +416,7 @@ export default function EventDetail() {
                                                     <div>
                                                         <div className="font-medium">{gasto.descripcion}</div>
                                                         <div className="text-sm text-muted-foreground">
-                                                            {gasto.categoria} • Contratado por {gasto.responsable} • {formatDate(gasto.fecha)}
+                                                            {gasto.category.description} • Contratado por {gasto.responsable} • {formatDate(gasto.fecha)}
                                                         </div>
                                                     </div>
                                                     <div className="flex items-center gap-3">

@@ -18,7 +18,7 @@ export default function Staff({ staffs }: Props) {
                             <CardHeader>
                                 <CardTitle>{stf.nombre}</CardTitle>
                                 <Badge variant="outline" className="w-fit">
-                                    {stf.rol}
+                                    {stf.role.description}
                                 </Badge>
                             </CardHeader>
                             <CardContent className="space-y-3">
@@ -33,22 +33,25 @@ export default function Staff({ staffs }: Props) {
                                 <div className="flex items-center gap-2">
                                     <Calendar className="h-4 w-4 text-muted-foreground" />
                                     <span className="text-sm">
-                                        {stf.assignedEvents.length} event{stf.assignedEvents.length !== 1 ? "s" : ""} assigned
+                                        {stf.events.length}&nbsp;evento{stf.events.length > 1 ? "s" : ""}&nbsp;
+                                        asignado{stf.events.length > 1 ? "s" : ""}
                                     </span>
                                 </div>
                                 <div className="flex flex-wrap gap-1 mt-2">
-                                    {stf.skills.map((skill, index) => (
-                                        <Badge key={index} variant="secondary" className="text-xs">
-                                            {skill}
-                                        </Badge>
-                                    ))}
+                                    {
+                                        stf.skills && stf.skills.map((skill) => (
+                                            <Badge key={skill.id} variant="secondary" className="text-xs">
+                                                {skill.description}
+                                            </Badge>
+                                        ))
+                                    }
                                 </div>
                             </CardContent>
                             <CardFooter>
                                 <div className="text-xs text-muted-foreground">
                                     Available:{" "}
                                     {stf.availability
-                                        .map(([day]) => day.charAt(0).toUpperCase() + day.slice(1, 3))
+                                        .map((day) => day.day.charAt(0).toUpperCase() + day.day.slice(1, 3))
                                         .join(", ")}
                                 </div>
                             </CardFooter>

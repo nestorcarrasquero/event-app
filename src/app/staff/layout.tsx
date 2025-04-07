@@ -6,7 +6,7 @@ export default function StaffLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <section className="flex justify-center h-screen bg-gray-100">
+        <section className="flex justify-center bg-gray-100 min-h-screen">
             {children}
             <Toaster />
         </section>
