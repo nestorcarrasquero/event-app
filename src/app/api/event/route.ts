@@ -25,7 +25,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
     const body = await req.json();    
     try {
-        throw new Error('mosca');
+        //throw new Error('mosca');
         await prisma.event.create({
             data: {
                 cliente: body.cliente,
@@ -39,11 +39,7 @@ export async function POST(req: NextRequest) {
                 typeEventId: Number(body.typeEventId),
             }
         })
-        return NextResponse.json({
-            data: body,
-            message: 'Evento agregado satisfactoriamente',
-            status: 200
-        })
+        return NextResponse.json({ data: body, message: 'Evento agregado satisfactoriamente' }, { status: 200 })
     } catch (error) {
         return NextResponse.json({ error: `Some problem ${error}` }, { status: 500 })
     }
