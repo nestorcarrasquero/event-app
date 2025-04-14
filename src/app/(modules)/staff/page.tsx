@@ -1,26 +1,26 @@
 'use client'
+import { Spinner } from "@/app/components/Spinner";
+import Staff from "@/app/components/Staff";
 import { Button } from "@/components/ui/button";
+import { IStaff } from "@/lib/types";
 import { ChevronLeft, Plus } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import Events from "../components/Events";
-import { Event } from "@/lib/types";
-import { Spinner } from "../components/Spinner";
 
-export default function EventsPage() {
-    const [events, setEvents] = useState<Event[]>([])
+export default function StaffPage() {
+    const [staff, setStaff] = useState<IStaff[]>([])
 
     useEffect(() => {
-        async function fetchEvents() {
+        async function fetchStaff() {
             try {
-                const res = await fetch('/api/event')
+                const res = await fetch('/api/staff')
                 const result = await res.json()
-                setEvents(result)
+                setStaff(result)
             } catch (error) {
                 return error
             }
         }
-        fetchEvents()        
+        fetchStaff()        
     }, [])
 
     return (
@@ -29,25 +29,25 @@ export default function EventsPage() {
                 <ChevronLeft className="h-4 w-4" />Regresa a Página Principal
             </Link>
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold">Eventos</h1>
-                <Link href="/events/new">
+                <h1 className="text-3xl font-bold">Staff</h1>
+                <Link href="/staff/new">
                     <Button className="gap-2">
                         <Plus className="h-4 w-4" />
-                        Crear Evento
+                        Incluir
                     </Button>
                 </Link>
             </div>
             {
-                events.length === 0 ? (
+                staff.length === 0 ? (
                     <div className="text-center py-12">
                         <Spinner />
-                        <p className="text-muted-foreground mb-4">No hay evento registrado</p>
+                        <p className="text-muted-foreground mb-4">No hay personal registrado</p>
                         <Link href="/events/new">
-                            <Button className="gap-2">Crear Evento</Button>
+                            <Button className="gap-2">Incluir</Button>
                         </Link>
                     </div>
                 ) : (
-                    <Events events={events}/>
+                    <Staff staffs={staff} />
                 )
             }
         </div>

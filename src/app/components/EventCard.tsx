@@ -119,13 +119,18 @@ export default function EventCard() {
             },
             body: JSON.stringify(data)
         };
-        try {            
+        try {
             const fetchResponse = await fetch('/api/event', settings)
             const data = await fetchResponse.json()
-            toast("Mensaje de la aplicación", {
-                description: data.message
-            })            
-            form.reset()
+            if (!data.ok) {
+                console.log(data)
+                throw new Error(data.error)
+            } else {
+                toast("Mensaje de la aplicación", {
+                    description: data.message
+                })
+                form.reset()
+            }
         } catch (error) {
             return error
         } finally {

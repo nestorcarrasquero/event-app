@@ -1,6 +1,6 @@
 import { Toaster } from "@/components/ui/sonner";
 
-export default function EventsLayout({
+export default function MainLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
