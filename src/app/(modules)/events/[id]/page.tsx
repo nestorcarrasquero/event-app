@@ -100,16 +100,15 @@ export default function EventDetail() {
         }
         try {
             const fetchResponse = await fetch(`/api/tarea/${taskId}`, settings)
-            const data = await fetchResponse.json()
-
-            toast("Mensaje de la aplicación", {
-                description: data.message,
-                className: "text-lg font-bold"
-            })
-
+            const response = await fetchResponse.json()
+            if(!response.message) {
+                toast.error(response.error)
+                throw new Error(response.error)
+            }
+            toast.success(response.message)
             fetchEvent()
         } catch (error) {
-            return error
+            console.error('Error task completion: ', error);
         } finally {
             setLoading(false)
         }
@@ -131,17 +130,17 @@ export default function EventDetail() {
         }
         try {
             const fetchResponse = await fetch('/api/tarea', settings)
-            const data = await fetchResponse.json()
+            const response = await fetchResponse.json()
 
-            toast("Mensaje de la aplicación", {
-                description: data.message,
-                className: "text-lg font-bold"
-            })
-
+            if(!response.message) {
+                toast.error(response.error)
+                throw new Error(response.error)
+            }
+            toast.success(response.message)
             fetchEvent()
             setNewTask("")
         } catch (error) {
-            return error
+            console.error('Error adding task: ', error);
         } finally {
             setLoading(false)
         }
@@ -159,16 +158,16 @@ export default function EventDetail() {
         }
         try {
             const fetchResponse = await fetch(`/api/gasto/${expenseId}`, settings)
-            const data = await fetchResponse.json()
+            const response = await fetchResponse.json()
 
-            toast("Mensaje de la aplicación", {
-                description: data.message,
-                className: "text-lg font-bold"
-            })
-
+            if(!response.message) {
+                toast.error(response.error)
+                throw new Error(response.error)
+            }
+            toast.success(response.message)
             fetchEvent()
         } catch (error) {
-            return error
+            console.error('Error removing expense: ', error);
         } finally {
             setLoading(false)
         }
@@ -186,16 +185,16 @@ export default function EventDetail() {
         }
         try {
             const fetchResponse = await fetch(`/api/tarea/${taskId}`, settings)
-            const data = await fetchResponse.json()
+            const response = await fetchResponse.json()
 
-            toast("Mensaje de la aplicación", {
-                description: data.message,
-                className: "text-lg font-bold"
-            })
-
+            if(!response.message) {
+                toast.error(response.error)
+                throw new Error(response.error)
+            }
+            toast.success(response.message)
             fetchEvent()
         } catch (error) {
-            return error
+            console.error('Error removing task: ', error);
         } finally {
             setLoading(false)
         }
@@ -215,18 +214,17 @@ export default function EventDetail() {
         }
         try {
             const fetchResponse = await fetch('/api/gasto', settings)
-            const data = await fetchResponse.json()
+            const response = await fetchResponse.json()
 
-            toast("Mensaje de la aplicación", {
-                description: data.message,
-                className: "text-lg font-bold"
-            })
-
+            if(!response.message) {
+                toast.error(response.error)
+                throw new Error(response.error)
+            }
+            toast.success(response.message)
             fetchEvent()
-
             form.reset()
         } catch (error) {
-            return error
+            console.error('Error submitting: ', error);
         } finally {
             setLoading(false)
         }

@@ -131,13 +131,15 @@ export default function StaffForm() {
         };
         try {
             const fetchResponse = await fetch('/api/staff', settings)
-            const data = await fetchResponse.json()
-            toast("Mensaje de la aplicación", {
-                description: data.message
-            })
+            const response = await fetchResponse.json()
+            if(!response.message) {
+                toast.error(response.error)
+                throw new Error(response.error)
+            }
+            toast.success(response.message)
             form.reset()
         } catch (error) {
-            return error
+            console.error('Error submitting staff: ', error);
         } finally {
             setLoading(false)
         }

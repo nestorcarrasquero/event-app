@@ -19,7 +19,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     } catch (error) {
         return NextResponse.json({
             data: null,
-            message: `Some problem ${error}`,
+            error: `Some problem ${error}`
+        }, {
             status: 500
         })
     }
@@ -64,13 +65,14 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         }        
         return NextResponse.json({
             data: body,
-            message: 'Staff updated successfully',
+            message: 'Staff updated successfully'
+        }, {
             status: 201
         })
     } catch (error) {
         return NextResponse.json({
-            data: null,
-            message: `Some problem ${error}`,
+            error: `Some problem ${error}`
+        }, {
             status: 204
         })
     }

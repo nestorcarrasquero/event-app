@@ -7,8 +7,8 @@ export async function GET() {
         return NextResponse.json(skill);
     } catch (error) {
         return NextResponse.json({
-            data: null,
-            message: `Some problem ${error}`,
+            error: `Some problem ${error}`
+        }, {
             status: 500
         })
     }

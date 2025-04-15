@@ -7,8 +7,8 @@ export async function GET() {
         return NextResponse.json(tarea);
     } catch (error) {
         return NextResponse.json({
-            data: null,
-            message: `Some problem ${error}`,
+            error: `Some problem ${error}`
+        }, {
             status: 500
         })
     }
@@ -25,13 +25,14 @@ export async function POST(req: NextRequest) {
         })
         return NextResponse.json({
             data: body,
-            message: 'Tarea agregada satisfactoriamente',
+            message: 'Tarea agregada satisfactoriamente'
+        }, {
             status: 200
         })
     } catch (error) {
         return NextResponse.json({
-            data: null,
-            message: `Some problem ${error}`,
+            error: `Some problem ${error}`
+        }, {
             status: 500
         })
     }

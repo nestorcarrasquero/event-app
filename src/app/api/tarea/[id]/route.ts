@@ -15,13 +15,14 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         })
         return NextResponse.json({
             data: body,
-            message: 'Tarea actualizada satisfactoriamente',
+            message: 'Tarea actualizada satisfactoriamente'
+        }, {
             status: 201
         })
     } catch (error) {
         return NextResponse.json({
-            data: null,
-            message: `Some problem ${error}`,
+            error: `Some problem ${error}`
+        }, {
             status: 204
         })
     } 
@@ -36,14 +37,14 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
             }
         })
         return NextResponse.json({
-            data: null,
-            message: 'Tarea eliminada satisfactoriamente',
+            message: 'Tarea eliminada satisfactoriamente'
+        }, {
             status: 200
         })
     } catch (error) {
         return NextResponse.json({
-            data: null,
-            message: `Some problem ${error}`,
+            error: `Some problem ${error}`
+        }, {
             status: 500
         })
     }

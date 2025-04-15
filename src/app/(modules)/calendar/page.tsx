@@ -91,7 +91,6 @@ export default function CalendarPage() {
         setSelectedEvents([])
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleDateClick = (day: any) => {
         if (!day.day) return
 

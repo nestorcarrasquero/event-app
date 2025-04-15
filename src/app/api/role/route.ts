@@ -8,7 +8,8 @@ export async function GET() {
     } catch (error) {
         return NextResponse.json({
             data: null,
-            message: `Some problem ${error}`,
+            error: `Some problem ${error}`
+        }, {
             status: 500
         })
     }

@@ -73,17 +73,17 @@ export default function StaffDetail() {
         }
         try {
             const fetchResponse = await fetch(`/api/staff/${id}`, settings)
-            const data = await fetchResponse.json()
+            const response = await fetchResponse.json()
 
-            toast("Mensaje de la aplicación", {
-                description: data.message,
-                className: "text-lg font-bold"
-            })
-
+            if(!response.message) {
+                toast.error(response.error)
+                throw new Error(response.error)
+            }
+            toast.success(response.message)
             fetchStaff()
             fetchEvents()
         } catch (error) {
-            return error
+            console.error('Error submitting event: ', error)
         }  finally {
             setLoading(false)
         }     

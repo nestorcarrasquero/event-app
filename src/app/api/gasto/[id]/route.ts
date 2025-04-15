@@ -10,14 +10,14 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
             }
         })
         return NextResponse.json({
-            data: null,
-            message: 'Gasto eliminado satisfactoriamente',
+            message: 'Gasto eliminado satisfactoriamente'
+        }, {
             status: 200
         })
     } catch (error) {
         return NextResponse.json({
-            data: null,
-            message: `Some problem ${error}`,
+            error: `Some problem ${error}`
+        }, {
             status: 500
         })
     }

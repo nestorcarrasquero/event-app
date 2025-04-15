@@ -103,7 +103,7 @@ export default function NewEvent() {
             toast.success(response.message)
             form.reset()
         } catch (error: string | any) {
-            console.error('Error fetching data:', error);
+            console.error('Error submitting: ', error);
         } finally {
             setLoading(false)
         }
